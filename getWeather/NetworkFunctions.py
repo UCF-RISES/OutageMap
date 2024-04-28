@@ -12,6 +12,26 @@ from ComponentClasses import Bus, Line, Load, Node, Edge
 import os
 import time
 import multiprocessing 
+from datetime import datetime
+import math
+
+
+def roundup(x):
+    return int(math.ceil(x / 100.0)) * 100
+
+def parseDate(date):
+    datetime_obj = datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S')
+
+    date_str = datetime_obj.strftime('%Y-%m-%d')
+
+    return date_str
+
+def parseTime(time):
+    time = str(time)
+    if len(time) != 4:
+        time = ("0" * (4 - len(time))) + time
+    return time
+
 
 def cft(input_tuple):
     # Strip leading and trailing whitespace and convert to float
