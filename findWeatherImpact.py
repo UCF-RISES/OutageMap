@@ -1,15 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
-
-def weatherImpact(alpha, observed):
-    observed_array = np.array(observed)
-    weatherImpact = dict(alpha)
-    for feature in alpha:
-        alpha_feature_array = np.array(alpha[feature])
-        product = np.dot(alpha_feature_array, observed_array)
-        weatherImpact[feature] = product
-    return weatherImpact
+from util.mainHelper import weatherImpact
 
 n=2
 network = "P3R"

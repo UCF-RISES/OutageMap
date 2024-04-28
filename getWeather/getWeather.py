@@ -1,4 +1,4 @@
-from NetworkFunctions import getWeatherByCoords, roundup, parseDate, parseTime
+from util.NetworkFunctions import getWeatherByCoords, roundup, parseDate, parseTime
 import pandas as pd
 import numpy as np
 import os

@@ -1,4 +1,4 @@
-from mainHelper import assign_values_to_ranges, createTables, generateProb, probOfNodeAndParent, plotTreeWithProb
+from util.mainHelper import assign_values_to_ranges, createTables, generateProb, probOfNodeAndParent, plotTreeWithProb
 import pandas as pd
 import numpy as np
 from collections import defaultdict

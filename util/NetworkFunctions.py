@@ -8,7 +8,7 @@ import py3dep
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
-from ComponentClasses import Bus, Line, Load, Node, Edge
+from util.ComponentClasses import Bus, Line, Load, Node, Edge
 import os
 import time
 import multiprocessing 

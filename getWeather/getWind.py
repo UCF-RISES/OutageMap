@@ -1,4 +1,4 @@
-from  NetworkFunctions import getWeatherByCoords
+from  util.NetworkFunctions import getWeatherByCoords
 import pandas as pd
 import numpy as np
 from datetime import datetime

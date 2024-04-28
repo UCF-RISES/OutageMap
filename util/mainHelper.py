@@ -163,3 +163,11 @@ def plotTreeWithProb(tree, probabilities, title, pos):
     plt.title(title)
     plt.show()
 
+def weatherImpact(alpha, observed):
+    observed_array = np.array(observed)
+    weatherImpact = dict(alpha)
+    for feature in alpha:
+        alpha_feature_array = np.array(alpha[feature])
+        product = np.dot(alpha_feature_array, observed_array)
+        weatherImpact[feature] = product
+    return weatherImpact
