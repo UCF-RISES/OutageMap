@@ -15,7 +15,6 @@ import multiprocessing
 from datetime import datetime
 import math
 
-
 def roundup(x):
     return int(math.ceil(x / 100.0)) * 100
 
@@ -31,7 +30,6 @@ def parseTime(time):
     if len(time) != 4:
         time = ("0" * (4 - len(time))) + time
     return time
-
 
 def cft(input_tuple):
     # Strip leading and trailing whitespace and convert to float
@@ -190,42 +188,6 @@ def readTransformerData(dss_file_path):
                     phaseMatchNE = re.search(equalPattern, phaseMatch.group())
                     windingsMatchNE = re.search(equalPattern, windingsMatch.group())
                     normhkvaMatchNE = re.search(equalPattern, normhkvaMatch.group())
-      
-                    # # Extract multiple occurrences for certain parameters
-                    # wdgMatchNE = []
-                    # wdgMatch = re.findall(wdgPattern,line)
-                    # for wdg in wdgMatch:
-                    #     wdgMatchNE.append(re.search(equalPattern,wdg).group(1))
-                    
-                    # connMatchNE = []
-                    # connMatch = re.findall(connectionPattern,line)
-                    # for conn in connMatch:
-                    #     connMatchNE.append(re.search(equalPattern,conn).group(1))
-                    
-                    # kvMatchNE = []
-                    # kvMatch = re.findall(kVPattern,line)
-                    # for kv in kvMatch:
-                    #     kvMatchNE.append(re.search(equalPattern,kv).group(1))
-
-                    # kvaMatchNE = []
-                    # kvaMatch = re.findall(kvaPattern,line)
-                    # for kva in kvaMatch:
-                    #     kvaMatchNE.append(re.search(equalPattern,kva).group(1))
-
-                    # busMatchNE = []
-                    # busMatch = re.findall(busPattern,line)
-                    # for bus in busMatch:
-                    #     busMatchNE.append(re.search(equalPattern,bus).group(1))
-                 
-                    
-                    # connectionMatch = re.search(connectionPattern,line)
-                    # kvMatch = re.search(kVPattern,line)
-                    # kvaMatch = re.search(kvaPattern,line)
-                    # busMatch = re.search(busPattern, line)
-                    
-                    # phaseMatchNE = re.search(equalPattern,phaseMatch.group())
-                    # windingsMatchNE = re.search(equalPattern,windingsMatch.group())
-                    # normhkvaMatchNE = re.search(equalPattern,normhkvaMatch.group())
                 
                     parsed_data.append({
                     'Name': nameMatch.group().lower(),
@@ -333,7 +295,6 @@ def findNumLoads(bus, loads):
 def nodeNameSplit(text):
     return text.split('.')[0]
 
-
 def findNodeNum(bus, nodes):
     """
     Finds and returns the numerical identifier of a node with a specified name.
@@ -357,33 +318,15 @@ def findNodeNum(bus, nodes):
             return node.num
         
 def findEdgeElevation(bus1,bus2, nodes):
-    if '.' in bus1:
-        bus1 = nodeNameSplit(bus1)
-
-    if '.' in bus2:
-        bus2 = nodeNameSplit(bus2)
-    print(bus2)
     for node in nodes:
-        if bus1 == node.name:
+        if bus1 == node.num:
             coord1 = node.coords
-        if bus2 == node.name:
+        if bus2 == node.num:
             coord2 = node.coords
     test_list = [coord1,coord2]
     res = [sum(ele) / len(test_list) for ele in zip(*test_list)] 
-    return (tuple(res))
-    #return node.num
-
-def findEdgeElevationByNum(bus1,bus2, nodes):
-    for node in nodes:
-        if bus1 == node.num:
-            ele1 = node.elevation
-        if bus2 == node.num:
-            ele2 = node.elevation
-    return (ele1+ele2)/2
-    #res = [sum(ele) / len(test_list) for ele in zip(*test_list)] 
-    #return (tuple(res))
-    #return node.num
-
+    return getElevationByCoords(tuple(res))
+    
 def readLineCodeData(dss_file_path):
     """
     Reads and parses line code data from a DSS file.
@@ -425,24 +368,6 @@ def readLineCodeData(dss_file_path):
 
                     # Search for the pattern in the string
                     nameMatch = re.search(namePattern, line)
-
-                    # Extract the matched string if found
-                    # if nameMatch:
-                    #     phaseMatch = re.search(equalPattern,re.search(phasePattern, line).group()).group(1)
-
-                    #     if re.search(faultPattern, line) == None:
-                    #         faultMatch = 'None'
-                    #     else:
-                    #         faultMatch = re.search(equalPattern,re.search(faultPattern, line).group()).group(1)
-                        
-                    #     RMatch = re.search(equalPattern1,re.search(RPattern, line).group()).group()
-                    #     XMatch = re.search(equalPattern1,re.search(XPattern, line).group()).group()
-                        
-                    #     if re.search(CPattern, line) == None:
-                    #         CMatch = 'None'
-                    #     else:
-                    #         CMatch = re.search(equalPattern1,re.search(CPattern, line).group()).group(1)
-                    #     normAmpMatch = re.search(equalPattern,re.search(normAmpPattern, line).group()).group(1)
                     
                     # Perform pattern matching
                     if nameMatch:
@@ -519,41 +444,6 @@ def parse_bus_data(file_path):
 
     return parsed_data
 
-def disable_downstream_connections(starting_bus, visited_buses=None, disabled_connections=None):
-    
-    """
-    Recursive function to disable downstream connections starting from a given bus node.
-
-    Args:
-    starting_bus (BusNode): The starting bus node.
-    visited_buses (set): A set of already visited bus names to avoid infinite loops.
-    disabled_connections (set): A set of disabled connection names collected so far.
-
-    Returns:
-    set: A set of disabled connection names that are downstream of the starting bus node.
-    """
-    if visited_buses is None:
-        visited_buses = set()
-    if disabled_connections is None:
-        disabled_connections = set()
-
-    # Add the current bus node to the visited set
-    visited_buses.add(starting_bus.name)
-
-    # Iterate through each connection of the current bus
-    for connection in starting_bus.connections:
-        # Only proceed if the starting bus is the first bus in the connection (assuming flow direction is bus1 to bus2/bus3)
-        if connection.bus1.name == starting_bus.name:
-            if "Line" in connection.name:
-                disabled_connections.add(connection.name)  # Disable this connection
-
-            # Recursively disable downstream connections for bus2 and bus3 if they exist
-            for bus in [connection.bus2, connection.bus3]:
-                if bus and bus.name not in visited_buses:
-                    disable_downstream_connections(bus, visited_buses, disabled_connections)
-
-    return disabled_connections
-
 def getElevationByCoords(coords):
    return py3dep.elevation_bycoords(coords, crs=4326) # Elevation Acquisition (in meters)
 
@@ -561,18 +451,7 @@ def getLandCover(coords):
     lon = coords[0]
     lat = coords[1]
     
-    # Define the geometry to get the coverage statistics for 
-
-    # A set of coordinates from input
-    #
-    # Or for a NWIS Station 
-    # geometry = NLDI().get_basins("01031450")
-
-    # Get the land usage/cover data for the area using nlcd_bygeom
-    # lulc = gh.nlcd_bygeom(geometry, 100, years={"cover": 2016})
-    # Print the coverage statistics
-    # stats = gh.cover_statistics(lulc["USGS-01031450"].cover_2016)
-
+ 
     # OR get the data for specific coordinates using nlcd_bycoords (cover_statistics does not work with this method)
     land_usage_land_cover = gh.nlcd_bycoords(list(zip([lon],[lat])), years={"canopy": [2016]})
     # Return the land usage and cover data
@@ -602,140 +481,3 @@ def getWeatherByCoords(lon,lat,start,end):
     # getWeather(-120.82899598, 36.50996789,"2010-01-08", "2010-01-08")
     data =nldas.get_bycoords(list(zip([lon],[lat])),start,end) 
     return data
-
-
-
-
-def graphFromDSS(path):
-    startPath = os.getcwd()
-    os.chdir(path)
-    for dir in os.listdir():
-        if "analysis" not in dir:
-            if "subtransmission" not in dir:
-                curDir = os.getcwd() + '\\'+dir
-                if "_Buses.Txt" in dir:
-                    busPath = curDir
-                elif "_Elements.Txt" in dir:
-                    elementPath = curDir
-                elif "Lines.dss" in dir:
-                    linePath = curDir
-                elif "LineCodes.dss" in dir:
-                    lineCodePath = curDir
-                elif "Transformers.dss" in dir:
-                    transformerPath = curDir
-                elif "Loads.dss" in dir:
-                    loadPath = curDir
-    
- 
-    # # File Paths
-    # transformerPath ="synthetic_networks/P5R/Transformers.dss"
-    # busPath ="synthetic_networks/P5R/feeder_p5rdt52-p5rhs0_1247x_Buses.Txt"
-    # elementPath = "synthetic_networks/P5R/feeder_p5rdt52-p5rhs0_1247x_Elements.Txt"
-    # linePath = "synthetic_networks/P5R/Lines.dss"
-    # lineCodePath = "synthetic_networks/P5R/LineCodes.dss"
-    # loadPath = "synthetic_networks/P5R/Loads.dss"
-    start = time.time()
-    # Parse buses.txt and put data into dictionary
-    busData=parse_bus_data(busPath)
-
-    # Parse transformers.dss and put data into dictionary
-    transformerData=readTransformerData(transformerPath)
-
-    # Parse linecodes.dss and put data into dictionary
-    lineCodeData=readLineCodeData(lineCodePath)
-
-    # Parse Lines.dss and put data into dictionary
-    lineData = readLineData(linePath)
-
-    # Parse Loads.dss and put data into dictionary
-    loadData=readLoadData(loadPath)
-
-    stop = time.time()
-    print("Total Time = "+ str(stop-start))
-    # Append Bus Data to list
-    BUSES=[]
-    for bus in busData:
-        BUSES.append(Bus(bus['Bus'],bus['Coord'],bus['Base_kV'],len(bus['Nodes Connected'])))
-
-    # Append Line Data to list
-    LINES = []
-    i=0 
-    for line in lineData:
-        LINES.append(Line(line['Name'], line['Length'], line['Bus1'].split('.')[0], line['Bus2'].split('.')[0], line['Switch'], line['Enable'], line['Phases'], line['LineCode']))
-
-    # Append Load Data to list
-    LOADS = []
-    i=0 
-    for load in loadData:
-        LOADS.append(Load(load['Name'], load['Connection'], load['Bus'].split('.')[0], load['kV'], load['kW'],load['kvar'], load['Vminpu'], load['Vmaxpu'], load['Phases']))
-
-    # Append Buses to Node List
-    NODES = []
-    i=0
-    for bus in BUSES:
-        #print(cft(bus.coordinates))
-        NODES.append(Node(bus.name, bus.baseVoltage,i,findNumLoads(bus.name,LOADS),cft(bus.coordinates),getElevationByCoords(bus.coordinates) ))
-        i=i+1
-
-    # Append Lines and Transformers to Node List
-    EDGES = []
-    for line in LINES:
-        if 'UG' in line.linecode:
-            location = 0
-        else:
-            location = 1
-        if 'switch' in line.linecode:
-            type = 0
-        else:
-            type = 1
-        EDGES.append(Edge(line.name,line.length,type, findNodeNum(line.bus1, NODES),findNodeNum(line.bus2, NODES), line.switch, line.enabled, location))
-
-    for tf in transformerData:
-        EDGES.append(Edge(tf['Name'],0,2, findNodeNum(tf['bus'][0].split('.')[0], NODES),findNodeNum(tf['bus'][1].split('.')[0], NODES),'n', 'y',1))
-
-    os.chdir(startPath)
-
-    return NODES, EDGES, BUSES, LINES, LOADS, 
-
-
-def graphAndProcess(NODES, EDGES, region):
-
-    # Create a new graph. # Need to use a graph class that includes Multi (MultiGraph, MultiDiGraph, etc.)
-    G = nx.MultiGraph()
-
-    nodeDict = []
-
-    # Add Nodes to Graph
-    for node in NODES:
-        G.add_node(node.num, name = node.name, voltage = node.voltage, loads = node.loads, coords = node.coords)
-        nodeDict.append({
-            'name':node.name,
-            'voltage':node.voltage,
-            'loads':node.loads,
-            'coords':node.coords,
-            'elevation':getElevationByCoords(node.coords)
-            })
-
-    # Add Edges to Graph
-    for edge in EDGES:
-        if edge.enabled =='y':
-            if edge.bus1 != None:
-                G.add_edge(edge.bus1, edge.bus2, name = edge.name, length = edge.length, type = edge.type)
-            
-    # # Create a position mapping based on node coordinates 
-    pos = {node.num: node.coords for node in NODES if node.coords is not None}
-
-    # # Draw the graph
-    nx.draw_networkx(G, pos=pos,with_labels=False, node_size=30, font_size=6,arrows=False)
-    plt.show()
-
-    # Edge List and Node List to Panda Dataframes
-    el = nx.to_pandas_edgelist(G)
-    nl = pd.DataFrame(nodeDict)
-
-    # Panda Dataframes to Edge List and Node List csv
-    pd.DataFrame.to_csv(el, 'synthetic_networks\\'+str(region)+'\\edgeList.csv')
-    pd.DataFrame.to_csv(nl, 'synthetic_networks\\'+str(region)+'\\nodeList.csv')
-    
-    # pd.DataFrame.to_csv(nl,'synthetic_networks/P5R/nodeList.csv')
-    # pd.DataFrame.to_csv(el,'synthetic_networks/P5R/edgeList.csv')
