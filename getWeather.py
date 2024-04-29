@@ -22,10 +22,7 @@ weatherEvents = pd.read_excel("ExtremeWeatherEventsSFO.xlsx")
 ###############################################################
 
 # Loop through weather events
-for j in weatherEvents.index:
-    print(f"{j}th event")
-    print(roundup(weatherEvents['BEGIN_TIME'][j]))
-
+for j in [29]:
     # Determine start and end date of event    
     begin = f"{parseDate(weatherEvents['BEGIN_DATE'][j])} {parseTime(roundup(weatherEvents['BEGIN_TIME'][j]))}"
     end = f"{parseDate(weatherEvents['END_DATE'][j])} {parseTime(roundup(weatherEvents['END_TIME'][j]))}"
@@ -54,23 +51,21 @@ for j in weatherEvents.index:
         eventForNode.append(timeframe["prcp"])
         
         # Append the wind to node event lists
-        eventForNode1.append(tempWind)
+        eventForNode1.append(tempWind * 2.23694)
 
     # Convert Lists to dataframe
     events = pd.DataFrame(eventForNode)
     events1 = pd.DataFrame(eventForNode1)
 
     # Save Dataframes to csv's
-    pd.DataFrame.to_csv(events, f'../P3R/Rain/nodes/weatherEvent{j+2}.csv')
-    pd.DataFrame.to_csv(events1, f'../P3R/Wind/nodes/weatherEvent{j+2}.csv')
-
+    pd.DataFrame.to_csv(events, f'./{network}/Rain/nodes/weatherEvent{j+1}.csv')
+    pd.DataFrame.to_csv(events1, f'./{network}/Wind/nodes/weatherEvent{j+1}.csv')
 
 ###############################################################
             # EDGE WEATHER DATA COLLECTION LOOP
 ###############################################################
-# COLIN: PLEASE UPDATE THE REST OF THE SCRIPT ACCORDINGLY
 
-directories = [f"../{network}/Rain/nodes/", f"../{network}/Wind/nodes/"]
+directories = [f"./{network}/Rain/nodes/", f"./{network}/Wind/nodes/"]
 fileNames = [f for f in os.listdir(directories[0]) if os.path.isfile(os.path.join(directories[0], f))]
 
 edgeList = []
@@ -94,5 +89,5 @@ for name in fileNames:
     edgeRain = pd.DataFrame(edgeRainDf)
     edgeWind = pd.DataFrame(edgeWindDf)
 
-    pd.DataFrame.to_csv(edgeRain, f'../{network}/Rain/edges/{name}')
-    pd.DataFrame.to_csv(edgeWind, f'../{network}/Wind/edges/{name}')
+    pd.DataFrame.to_csv(edgeRain, f'./{network}/Rain/edges/{name}')
+    pd.DataFrame.to_csv(edgeWind, f'./{network}/Wind/edges/{name}')

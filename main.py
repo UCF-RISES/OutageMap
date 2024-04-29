@@ -15,7 +15,7 @@ network = "P3R"
 meanWI = { 
     "elevation nodes": [20, 1],
     "vegetation": [20, 5],
-    "elevation edges": [30,1],
+    "elevation edges": [30, 1],
     "length": [20, 5], 
 }
 
