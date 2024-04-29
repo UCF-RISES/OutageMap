@@ -394,7 +394,7 @@ def readLineCodeData(dss_file_path):
         print(f"The file {dss_file_path} was not found.")
         return None
   
-def parse_bus_data(file_path):
+def readBusData(file_path):
     """
     Parses the bus data from the file, including both x and y coordinates.
     This version correctly parses the "Nodes Connected" field, accounting for the actual nodes connected.

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from util.NetworkFunctions import parse_bus_data,readLineCodeData,readLineData, cft, getElevationByCoords
+from util.NetworkFunctions import readBusData,readLineCodeData,readLineData, cft, getElevationByCoords
 from util.NetworkFunctions import readTransformerData, readLoadData, findNumLoads,findNodeNum, getLandCover, findEdgeElevation
 import pandas as pd
 import networkx as nx
@@ -17,7 +17,7 @@ loadPath = "P3R/DSS/Loads.dss"
 
 
 # Parse buses.txt and put data into dictionary
-busData=parse_bus_data(busPath)
+busData=readBusData(busPath)
 
 # Parse transformers.dss and put data into dictionary
 transformerData=readTransformerData(transformerPath)
