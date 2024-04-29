@@ -65,29 +65,44 @@ for j in [29]:
             # EDGE WEATHER DATA COLLECTION LOOP
 ###############################################################
 
+# Set the directories of the node weather data
 directories = [f"./{network}/Rain/nodes/", f"./{network}/Wind/nodes/"]
+
+# Grab the names of files in folder
 fileNames = [f for f in os.listdir(directories[0]) if os.path.isfile(os.path.join(directories[0], f))]
 
+# Create am edge list from loaded edge csv
 edgeList = []
 for i in range(len(edges)):
     edgeList.append([int(edges.iloc[[i]]["source"]), int(edges.iloc[[i]]["target"])])
 
+# Loop through each file in folder
 for name in fileNames:
+    # Load the rain data
     rainDf = pd.read_csv(directories[0] + name)
-    windDf = pd.read_csv(directories[1] + name)
     rainDf.drop(["Unnamed: 0"], axis=1, inplace=True)
 
+    # Load the wind data
+    windDf = pd.read_csv(directories[1] + name)
+
+    # Create dataframes for edges wind and rain
     edgeWindDf = pd.DataFrame(columns=rainDf.columns)
     edgeRainDf = pd.DataFrame(columns=windDf.columns)
+
+    # Loop through each edge
     for source, target in edgeList:
+        # Calculate the edge rain and wind data by averaging between the connected nodes
         edgeRain = pd.DataFrame(rainDf.iloc[[source]].values + rainDf.iloc[[target]].values, columns=rainDf.columns) / 2
         edgeWind = pd.DataFrame(windDf.iloc[[source]].values + windDf.iloc[[target]].values, columns=windDf.columns) / 2
 
+        # Append the wind and rain data to their respective csv
         edgeWindDf = pd.concat([edgeWindDf, edgeWind], ignore_index=True)
         edgeRainDf = pd.concat([edgeRainDf, edgeRain], ignore_index=True)
 
+    # Rename the dataframe
     edgeRain = pd.DataFrame(edgeRainDf)
     edgeWind = pd.DataFrame(edgeWindDf)
 
+    # Save each dataframe in their own csv file
     pd.DataFrame.to_csv(edgeRain, f'./{network}/Rain/edges/{name}')
     pd.DataFrame.to_csv(edgeWind, f'./{network}/Wind/edges/{name}')
