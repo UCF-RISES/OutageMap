@@ -15,14 +15,14 @@ nodes = pd.read_csv(f"{network}/nodeList.csv")
 edges = pd.read_csv(f"{network}/edgeList.csv")
 
 # Weather Event to collect data for
-weatherEvents = pd.read_excel("ExtremeWeatherEventsSFO.xlsx")
+weatherEvents = pd.read_excel("32123.xlsx")
 
 ###############################################################
             # NODE WEATHER DATA COLLECTION LOOP
 ###############################################################
 
 # Loop through weather events
-for j in [29]:
+for j in weatherEvents.index:
     # Determine start and end date of event    
     begin = f"{parseDate(weatherEvents['BEGIN_DATE'][j])} {parseTime(roundup(weatherEvents['BEGIN_TIME'][j]))}"
     end = f"{parseDate(weatherEvents['END_DATE'][j])} {parseTime(roundup(weatherEvents['END_TIME'][j]))}"
