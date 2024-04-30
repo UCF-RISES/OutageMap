@@ -31,6 +31,8 @@ lineData = readLineData(linePath)
 # Parse Loads.dss and put data into dictionary
 loadData=readLoadData(loadPath)
 
+print('Data Read From CSV')
+
 # Append Bus Data to list
 BUSES=[]
 for bus in busData:
@@ -52,11 +54,11 @@ for load in loadData:
 NODES = []
 i=0
 for bus in BUSES:
-    #print(cft(bus.coordinates))
+    print(i)
     
     NODES.append(Node(bus.name, bus.baseVoltage,i,findNumLoads(bus.name,LOADS),cft(bus.coordinates),elevation=getElevationByCoords(bus.coordinates), vegetation=getLandCover(bus.coordinates)))
     i=i+1
-
+print('Nodes Created')
 # Append Lines and Transformers to Node List
 EDGES = []
 for line in LINES:
@@ -73,6 +75,7 @@ for line in LINES:
 for tf in transformerData:
     EDGES.append(Edge(tf['Name'],0,2, findNodeNum(tf['bus'][0], NODES),findNodeNum(tf['bus'][1], NODES),'n', 'y',1))
 
+print('Edges Created')
 # Create a new graph. # Need to use a graph class that includes Multi (MultiGraph, MultiDiGraph, etc.)
 G = nx.MultiDiGraph()
 

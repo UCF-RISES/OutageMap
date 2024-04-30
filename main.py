@@ -99,4 +99,4 @@ meanProb = [(low + high) / 2 for low, high in prob]
 pos = {i: eval(nodes.iloc[[i]]["coords"][i]) for i in range(len(nodes))}
 
 # Plot the graph with probabilities
-plotTreeWithProb(G, meanProb, f"Mean of Outage Probability Range Map for {network}", pos)
+plotTreeWithProb(G, meanProb,"", pos)
