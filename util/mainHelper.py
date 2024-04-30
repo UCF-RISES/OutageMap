@@ -69,16 +69,22 @@ def createTables(stdRange, meanRange, levels):
         mean (Dict[str, List[float]]): Keys are the names of features. Value is list of severity levels for mean for damaging weather impact.
         std (Dict[str, List[float]]): Keys are the names of features. Value is list of severity levels for mean for damaging weather impact.
     """
+    # Initialize dictionaries to store mean and standard deviation values
     mean, std = {}, {}
+
+    # Calculate the standard deviation levels for each category
     for category, values in stdRange.items():
-        minValue = values[0]
-        maxValue = values[1]
+        # Extract the minimum and maximum values for the category
+        minValue, maxValue = values[0], values[1]
+        # Create standard deviation levels based on the range and store them in the dictionary
         std[category] = {i+1: val for i, val in enumerate(createLevels(minValue, maxValue, levels)[1:])}
+
+    # Calculate the mean levels for each category
     for category, values in meanRange.items():
-        minValue = values[0]
-        maxValue = values[1]
+        minValue, maxValue = values[0], values[1]
         mean[category] = {i+1: val for i, val in enumerate(createLevels(minValue, maxValue, levels)[1:])}
-    
+
+    # Return the dictionaries containing mean and standard deviation values
     return mean, std
 
 def findLevel(observedVal, featureName, forecastedRange, levels):
@@ -111,11 +117,20 @@ def inclusionExclusion(pr):
         float: Probability of the union of the events after applying the inclusion-exclusion principle.
     """
 
+    # Initialize the variable `union` to accumulate the union probability
     union = 0
+
+    # Loop over all possible non-empty subsets of probabilities
     for i in range(1, len(pr) + 1):
+        # Generate all combinations of `i` probabilities from the list `pr`
         comb = combinations(pr, i)
+        # Calculate the sum of products of probabilities for each combination
         sum_of_probs = sum([prod(combination) for combination in comb])
+        # Add to or subtract from the union based on whether the number of elements in the combination is odd or even
+        # This is based on the inclusion-exclusion principle
         union += sum_of_probs if i % 2 != 0 else -sum_of_probs
+
+    # Return the calculated union probability
     return union
 
 def prod(iterable):
@@ -153,34 +168,45 @@ def generateProb(node, edge, nodeFeatures, edgeFeatures, meanRange, stdRange, fo
         float: Calculated probability of outage for the node or edge.
     """
 
+    # Initialize a list to store the probability outcomes
     prob = []
+
+    # Check if the node is valid and not empty
     if node is not None and not node.empty:
-        listLevel = []
-        listIM = []
-        listSTD = []
+        # Initialize lists to store levels, impact means, and squared impact standard deviations
+        listLevel, listIM, listSTD = [], [], []
+        
+        # Iterate through features associated with the node
         for feature in nodeFeatures:
+            # Split the feature to access the data from the node
             differiate = feature.split(" ")
-            level = findLevel(float(node[differiate[0]]), feature, forecastedRange,levels)
+            # Find the appropriate level for the current node value
+            level = findLevel(float(node[differiate[0]]), feature, forecastedRange, levels)
+            # Retrieve the mean and standard deviation impacts for this level
             impactMean = meanRange[feature][level]
             impactStd = stdRange[feature][level]
 
+            # Store the actual observed level, mean impact, and variance (std squared)
             listLevel.append(float(impactWeatherN[feature]))
             listIM.append(impactMean)
             listSTD.append(impactStd ** 2)
 
+        # Convert lists to numpy arrays for vector operations
         featureVector = np.array(listLevel)
         meanVector = np.array(listIM)
-        sigma = np.diag(listSTD)
+        sigma = np.diag(listSTD)  # Create a diagonal covariance matrix from variances
 
-
+        # Initialize a multivariate normal distribution
         mvn = multivariate_normal(mean=meanVector, cov=sigma)
+        # Calculate the cumulative distribution function (CDF) value at the feature vector
         cdf_value = mvn.cdf(featureVector)
+        # Append the computed CDF value to the probability list
         prob.append(cdf_value)
 
+    # Check if the edge is valid and not empty
     if edge is not None and not edge.empty:
-        listLevel = []
-        listIM = []
-        listSTD = []
+        # Repeat the same process as for the node, but for the edge
+        listLevel, listIM, listSTD = [], [], []
         for feature in edgeFeatures:
             differiate = feature.split(" ")
             level = findLevel(float(edge[differiate[0]]), feature, forecastedRange, levels)
@@ -199,7 +225,9 @@ def generateProb(node, edge, nodeFeatures, edgeFeatures, meanRange, stdRange, fo
         cdf_value = mvn.cdf(featureVector)
         prob.append(cdf_value)
 
+    # Return the first element of the probability list (assumes there's at least one element)
     return prob[0]
+
 
 def probOfNodeAndParent(probN, probE, graph):
     """
@@ -213,15 +241,28 @@ def probOfNodeAndParent(probN, probE, graph):
         List[List[float]]: Aggregated probabilities of outages for nodes considering their parent node dependencies.
     """
 
+    # Create a new list of probability ranges by copying from the provided probN list
     newProb = [[low, high] for low, high in probN]
+
+    # Initialize a deque for breadth-first search traversal of the graph
     queue = deque()
+    # Start with the root node (assumed to be node 0)
     queue.append(0)
+
+    # Continue until there are no more nodes to process
     while queue:
+        # Retrieve the next node to process from the queue
         parent = queue.popleft()
+        # Iterate over all children connected to the current parent node
         for child, edge in graph[parent]:
+            # Update the probability range for each child node
             for j in range(2):
+                # Apply the inclusion-exclusion principle to update probability ranges
                 newProb[child][j] = inclusionExclusion([newProb[parent][j], newProb[child][j], probE[edge][j]])
+            # Add the child to the queue to process its own children later
             queue.append(child)
+
+    # Return the updated probability ranges for all nodes
     return newProb
 
 def plotTreeWithProb(tree, probabilities, title, pos):
@@ -237,19 +278,28 @@ def plotTreeWithProb(tree, probabilities, title, pos):
         Displays a visual representation of the network graph with nodes colored according to their outage probabilities.
     """
         
-    fig, ax = plt.subplots(constrained_layout = True)
-    
+    # Create a figure and an axis with constrained layout for better spacing
+    fig, ax = plt.subplots(constrained_layout=True)
+
+    # Create a custom colormap from green to red
     green_red_colormap = LinearSegmentedColormap.from_list('GreenRed', ['green', 'red'])
 
+    # Map each probability to a color in the colormap and store these colors
     nodeColors = [green_red_colormap(prob) for prob in probabilities]
-    nx.draw(tree, pos=pos, ax=ax, with_labels=False , node_color=nodeColors, node_size=80, arrowsize=7, arrowstyle='fancy', arrows=False, font_size=12)
 
+    # Draw the tree graph with customized node colors and styles
+    nx.draw(tree, pos=pos, ax=ax, with_labels=False, node_color=nodeColors, node_size=80, 
+            arrowsize=7, arrowstyle='fancy', arrows=False, font_size=12)
+
+    # Create a ScalarMappable to interpret the colormap scale properly
     scalarmappaple = plt.cm.ScalarMappable(cmap=green_red_colormap, norm=plt.Normalize(vmin=0, vmax=1))
+    # Add a colorbar to the axis using the ScalarMappable, and set its label
     cbar = fig.colorbar(scalarmappaple, ax=ax)
-    
     cbar.set_label('Probability of an Outage')
-    
+
+    # Set the title of the plot
     plt.title(title)
+    # Display the plot
     plt.show()
 
 def weatherImpact(alpha, observed):
@@ -263,10 +313,20 @@ def weatherImpact(alpha, observed):
         Dict[str, float]: Dictionary mapping each feature to its calculated weather impact based on the observed values.
     """
     
+    # Convert the list of observed values into a numpy array for vector operations
     observed_array = np.array(observed)
+
+    # Initialize a dictionary to store the computed weather impacts for each feature
     weatherImpact = dict(alpha)
+
+    # Iterate over each feature present in the alpha dictionary
     for feature in alpha:
+        # Convert the coefficients for the current feature into a numpy array
         alpha_feature_array = np.array(alpha[feature])
+        # Compute the dot product of the coefficients and the observed values
         product = np.dot(alpha_feature_array, observed_array)
+        # Store the resulting product in the weatherImpact dictionary under the current feature
         weatherImpact[feature] = product
+
+    # Return the dictionary containing the weather impacts for each feature
     return weatherImpact
