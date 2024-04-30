@@ -13,7 +13,7 @@
 	cd scenarios
 	mkdir base_timeseries
 	cd base_timeseries
-	mdir opendss
+	mkdir opendss
 	cd opendss
 
 3. Run each command to download the files. These folders are big (around 10 GB) so it may take a little bit to download.
