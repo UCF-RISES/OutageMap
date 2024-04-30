@@ -1,0 +1,9 @@
+Set Up Conda Environment:
+
+1. Go to https://www.anaconda.com/products/individual and click on download button located under the paragraph labeled "Your data science toolkit"
+
+2. After you have downloaded the Anaconda Prompt, open it, navigate to the directory that the repository is stored in, and then navigate to the Conda Environment Setup, where this file is currently stored and run the following command:
+
+	conda env create -f environment.yml
+
+This should create the Python environment, with all the packages needed to run the software.
