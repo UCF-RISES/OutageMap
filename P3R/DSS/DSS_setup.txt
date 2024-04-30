@@ -1,5 +1,8 @@
 1. Create a free AWS account and download the AWS CLI interface from: https://awscli.amazonaws.com/AWSCLIV2.msi (pretty sure you need admin for this)
 
+3. Open a Command Prompt and Navigate to the P3R folder using the cd command. Check to make sure aws installed correctly by running the command:
+	aws --version 
+
 2. Create the following folders and empty subdirectories (Needs to be structured this way for OpenDSS to work right.)
 
 	cd Desktop
@@ -13,10 +16,7 @@
 	mdir opendss
 	cd opendss
 
-3. Open a Command Prompt and Navigate to the P3R folder using the cd command. Check to make sure aws installed correctly by running the command:
-	aws --version 
-
-4. Run each command to download the files. These folders are big (around 10 GB) so it may take a little bit to download.
+3. Run each command to download the files. These folders are big (around 10 GB) so it may take a little bit to download.
 
 	aws s3 cp s3://oedi-data-lake/SMART-DS/v1.0/2018/SFO/P3R/scenarios/base_timeseries/opendss/ ./scenarios/base_timeseries/opendss --recursive --no-sign-request
 
