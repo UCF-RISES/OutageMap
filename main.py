@@ -12,17 +12,17 @@ network = "P3R"
 
 # Mean and standard deviation of weather impacts (WI) for outage probability
 meanWI = { 
-    "elevation nodes": [30, 10],
-    "vegetation": [28.5, 6],
-    "elevation edges": [25, 5],
+    "elevation nodes": [21, 15],
+    "vegetation": [26.5, 8.5],
+    "elevation edges": [25, 20],
     "length": [30, 25], 
 }
 
 stdWI = {
     "elevation nodes": [1, 1],
     "vegetation": [1.8, 1.5],
-    "elevation edges": [4, 4],
-    "length": [3, 3], 
+    "elevation edges": [2.5, 2],
+    "length": [1.5, 1], 
 }
 
 # Initialize forecasted range dictionary
