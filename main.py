@@ -24,7 +24,6 @@ stdWI = {
     "elevation edges": [2.5, 2],
     "length": [1.5, 1], 
 }
-
 # Initialize forecasted range dictionary
 forecastedRange = {}
 

@@ -5,16 +5,7 @@
 
 3. Create the following folders and empty subdirectories (Needs to be structured this way for OpenDSS to work right):
 
-	cd Desktop
-	mkdir P3R
-	cd P3R
-	mkdir profiles
-	mkdir scenarios
-	cd scenarios
-	mkdir base_timeseries
-	cd base_timeseries
-	mkdir opendss
-	cd opendss
+	mkdir P3R && cd P3R && mkdir profiles && mkdir scenarios && cd scenarios && mkdir base_timeseries && cd base_timeseries && mkdir opendss && cd opendss
 
 4. Run each command to download the files. These folders are big (around 10 GB) so it may take a little bit to download.
 
