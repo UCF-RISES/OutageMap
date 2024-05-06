@@ -283,12 +283,12 @@ def plotTreeWithProb(tree, probabilities, title, pos):
 
     # Create a custom colormap from green to red
     green_red_colormap = LinearSegmentedColormap.from_list('GreenRed', ['green', 'red'])
-
+    for i, prob in enumerate(probabilities):
+        print(i,prob)
     # Map each probability to a color in the colormap and store these colors
     nodeColors = [green_red_colormap(prob) for prob in probabilities]
-
     # Draw the tree graph with customized node colors and styles
-    nx.draw(tree, pos=pos, ax=ax, with_labels=False, node_color=nodeColors, node_size=80, 
+    nx.draw(tree, pos=pos, ax=ax,with_labels=False, node_color=nodeColors, node_size=80, 
             arrowsize=7, arrowstyle='fancy', arrows=False, font_size=12)
 
     # Create a ScalarMappable to interpret the colormap scale properly
@@ -330,3 +330,65 @@ def weatherImpact(alpha, observed):
 
     # Return the dictionary containing the weather impacts for each feature
     return weatherImpact
+
+def createLevelsAlt(minVal,maxVal,numLevels):
+    """
+    Create levels based on minimum, maximum values and number of levels.
+
+    Args:
+        minVal (float): Minimum value of the levels.
+        maxVal (float): Maximum value of the levels.
+        numLevels (int): Number of levels to create.
+
+    Returns:
+        list: A list of dictionaries containing 'min' and 'max' values for each level.
+    """
+    levels = []
+    
+    # Calculate the step size between levels
+    step = (maxVal - minVal) / (numLevels - 1)
+    
+    # Append the first level, starting from minVal
+    levels.append({'min':minVal, 'max':minVal + step})
+    
+    # Append subsequent levels by incrementing by step size
+    for i in range(1,numLevels-1):
+        levels.append({'min':levels[i-1]['max'], 'max':levels[i-1]['max'] + step})
+    return levels
+
+def findWeatherLevel(weather_value,weather_levels):
+    """
+    Find the weather level based on the weather value and levels.
+
+    Args:
+        weather_value (float): Value representing weather conditions.
+        weather_levels (list): List of dictionaries containing 'min' and 'max' values for each weather level.
+
+    Returns:
+        float: The score corresponding to the weather level (level index multiplied by 0.1).
+    """
+    for i in range(len(weather_levels)):
+        # Check if the weather_value falls within the min and max of the current level
+        if (weather_value >= weather_levels[i]['min']):
+            if (weather_value <= weather_levels[i]['max']):
+                # Check if the weather_value falls within the min and max of the current level
+                score = i*0.1
+                return score
+
+def findFeatureLevel(feature_value,feature_levels):
+    """
+    Find the feature level based on the feature value and levels.
+
+    Args:
+        feature_value (float or numpy.ndarray): Value or array representing the feature.
+        feature_levels (list): List of dictionaries containing 'min' and 'max' values for each feature level.
+
+    Returns:
+        int: The index of the feature level where the feature_value falls.
+    """
+    for i in range(len(feature_levels)):
+        # Check if the feature_value falls within the min and max of the current level
+        # The 'all() == True' check ensures the condition is met for all elements in case of arrays
+        if ((feature_value >= feature_levels[i]['min']) and (feature_value <=feature_levels[i]['max'])).all() ==True:
+            level = i
+            return level

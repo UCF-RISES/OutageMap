@@ -10,19 +10,20 @@ edgeFeatures = ["elevation edges", "length"]
 numOfBins=10
 network = "P3R"
 
+
 # Mean and standard deviation of weather impacts (WI) for outage probability
 meanWI = { 
-    "elevation nodes": [21, 15],
-    "vegetation": [26.5, 8.5],
-    "elevation edges": [25, 20],
-    "length": [30, 25], 
+    "elevation nodes": [0.6/2, 0.25/2],
+    "vegetation": [0.75/2, 0.35/2],
+    "elevation edges": [0.7/2, 0.31/2],
+    "length": [0.8/2, 0.32/2], 
 }
 
 stdWI = {
-    "elevation nodes": [1, 1],
-    "vegetation": [1.8, 1.5],
-    "elevation edges": [2.5, 2],
-    "length": [1.5, 1], 
+    "elevation nodes": [0.1, 0.05],
+    "vegetation": [0.1, 0.05],
+    "elevation edges": [0.1, 0.05],
+    "length": [0.1, 0.05], 
 }
 # Initialize forecasted range dictionary
 forecastedRange = {}

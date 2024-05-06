@@ -2,6 +2,8 @@ from util.NetworkFunctions import getWeatherByCoords, roundup, parseDate, parseT
 import pandas as pd
 import numpy as np
 import os
+import warnings
+warnings.filterwarnings("ignore")
 
 ###############################################################
             # NETWORK AND WEATHER PARAMETERS
@@ -25,8 +27,8 @@ weatherEvents = pd.read_excel("32123.xlsx")
 for j in weatherEvents.index:
     # Determine start and end date of event    
     begin = f"{parseDate(weatherEvents['BEGIN_DATE'][j])} {parseTime(roundup(weatherEvents['BEGIN_TIME'][j]))}"
-    end = f"{parseDate(weatherEvents['END_DATE'][j])} {parseTime(roundup(weatherEvents['END_TIME'][j]))}"
 
+    end = f"{parseDate(weatherEvents['END_DATE'][j])} {parseTime(roundup(weatherEvents['END_TIME'][j]))}"
     # Initialize Node Event Lists
     eventForNode = []
     eventForNode1 = []
@@ -39,20 +41,20 @@ for j in weatherEvents.index:
         long, lat = eval(nodes["coords"][i])
         
         # Query NLDAS2 for Weather Data
-        try:
-            timeframe = getWeatherByCoords(long, lat, begin, end)
-        except:
-            timeframe = getWeatherByCoords(long, lat, begin, end)
+        timeframe = getWeatherByCoords(long, lat, begin, end)
+        # try:
+            
+        # except:
+        #     timeframe = getWeatherByCoords(long, lat, begin, end)
         
         # Convert uv wind components to wind speed
         tempWind = np.sqrt(np.square(timeframe["wind_u"]) + np.square(timeframe["wind_v"]))    
-        
         # Append the rain to node event lists
         eventForNode.append(timeframe["prcp"])
         
         # Append the wind to node event lists
         eventForNode1.append(tempWind * 2.23694)
-
+        print(tempWind * 2.23694)
     # Convert Lists to dataframe
     events = pd.DataFrame(eventForNode)
     events1 = pd.DataFrame(eventForNode1)
