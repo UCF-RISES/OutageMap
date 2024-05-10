@@ -9,7 +9,7 @@ import warnings
 from collections import deque
 warnings.filterwarnings('ignore')
 
-def assign_values_to_ranges(values, levels=10):
+def assign_values_to_ranges(values, levels=10, inv=False):
     """
     Assign values to ranges (bins) based on the specified number of bins.
     
@@ -22,8 +22,13 @@ def assign_values_to_ranges(values, levels=10):
     if values is None:
         return []
     
-    min_val = min(values)
-    max_val = max(values)
+    if inv == True:
+        min_val = max(values)
+        max_val = min(values)
+    else:
+        min_val = min(values)
+        max_val = max(values)
+
     range_size = (max_val - min_val) / levels
     
     # Initialize bins
@@ -283,8 +288,7 @@ def plotTreeWithProb(tree, probabilities, title, pos):
 
     # Create a custom colormap from green to red
     green_red_colormap = LinearSegmentedColormap.from_list('GreenRed', ['green', 'red'])
-    for i, prob in enumerate(probabilities):
-        print(i,prob)
+
     # Map each probability to a color in the colormap and store these colors
     nodeColors = [green_red_colormap(prob) for prob in probabilities]
     # Draw the tree graph with customized node colors and styles
@@ -372,7 +376,7 @@ def findWeatherLevel(weather_value,weather_levels):
         if (weather_value >= weather_levels[i]['min']):
             if (weather_value <= weather_levels[i]['max']):
                 # Check if the weather_value falls within the min and max of the current level
-                score = i*0.1
+                score = (i+1)*0.1
                 return score
 
 def findFeatureLevel(feature_value,feature_levels):

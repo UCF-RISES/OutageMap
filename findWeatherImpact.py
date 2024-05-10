@@ -15,8 +15,10 @@ rainSeverityLevels = createLevelsAlt(0,6,10)
 # Process files for nodes
 for name in fileNames:
     alpha = {
-        "elevation nodes": [0.75, 0.25],
-        "vegetation": [0.6, 0.4]
+        # "elevation nodes": [0.75, 0.25],
+        # "vegetation": [0.6, 0.4]
+        "elevation nodes": [0.4, 0.6],
+        "vegetation": [0.8, 0.2]
     }
     rainDf = pd.read_csv(directories[0] + name)  # Load rain data
     windDf = pd.read_csv(directories[1] + name)  # Load wind data
@@ -73,8 +75,11 @@ fileNames = [f for f in os.listdir(directories[0]) if os.path.isfile(os.path.joi
 # Process files for edges
 for name in fileNames:
     alpha = {
-        "elevation edges": [0.72, 0.28],
-        "length": [0.88, 0.12], 
+        #"elevation edges": [0.72, 0.28],
+        # "vegetation edges": [0.72, 0.28],
+        # "length": [0.88, 0.12], 
+        "vegetation edges": [0.7, 0.3],
+        "length": [0.9, 0.1], 
     }
 
     rainDf = pd.read_csv(directories[0] + name)
@@ -113,7 +118,8 @@ for name in fileNames:
 
     # Create dictionary to hold final weather impact ranges
     wi = {
-        "elevation edges": [],
+        #"elevation edges": [0.72, 0.28],
+        "vegetation edges": [],
         "length": []
     }
 

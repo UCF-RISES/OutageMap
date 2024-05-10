@@ -5,11 +5,13 @@ from pygeohydro import WBD
 import pygeohydro as gh
 from pynhd import NLDI
 import py3dep
+import numpy as np
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from util.ComponentClasses import Bus, Line, Load, Node, Edge
 import os
+from math import radians, sin, cos, sqrt, atan2, degrees
 import time
 import multiprocessing 
 from datetime import datetime
@@ -456,10 +458,10 @@ def getLandCover(coords):
     lat = coords[1]
     
     # OR get the data for specific coordinates using nlcd_bycoords (cover_statistics does not work with this method)
-    land_usage_land_cover = gh.nlcd_bycoords(list(zip([lon],[lat])), years={"canopy": [2016]})
+    land_usage_land_cover = gh.nlcd_bycoords(list(zip([lon],[lat])), years={"canopy": [2019]})
 
     # Grab the tree canopy coverage
-    tcc = land_usage_land_cover.canopy_2016[0]
+    tcc = land_usage_land_cover.canopy_2019[0]
 
     # Return the land usage and cover data
     return tcc
@@ -590,4 +592,52 @@ def nodeNameSplit(text):
     """
     return text.split('.')[0]
 
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0  # Radius of Earth in kilometers
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
+
+def interpolate_points(lat1, lon1, lat2, lon2, n):
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    d = haversine(lat1, lon1, lat2, lon2)
+    LAT = []
+    LON = []
+    for i in range(n):
+        fraction = i / (n - 1)
+        A = sin((1 - fraction) * d) / sin(d)
+        B = sin(fraction * d) / sin(d)
+        
+        x = A * cos(lat1) * cos(lon1) + B * cos(lat2) * cos(lon2)
+        y = A * cos(lat1) * sin(lon1) + B * cos(lat2) * sin(lon2)
+        z = A * sin(lat1) + B * sin(lat2)
+        
+        lat = atan2(z, sqrt(x ** 2 + y ** 2))
+        lon = atan2(y, x)
+        LAT.append(degrees(lat))
+        LON.append(degrees(lon))
+    return LAT,LON
+
+
+def findAvgLineVegetation(bus1,bus2, nodes, n):
+    # Loops through all the nodes
+    for node in nodes:
+        # Finds the node number for the first node and grabs it coords
+        if bus1 == node.num:
+            start = node.coords
+        # Finds the node number for the second node and grabs it coords
+        if bus2 == node.num:
+            end = node.coords
+
+    start_lon, start_lat = start
+    end_lon, end_lat = end
+
+    lat,lon = interpolate_points(start_lat, start_lon, end_lat, end_lon, n)
+    tcc = gh.nlcd_bycoords(zip(lon,lat),years={"canopy": [2019]})
+    lineVeg = np.array(tcc['canopy_2019'])
+    avgVeg = np.sum(lineVeg) / n
+    print(avgVeg)
+    return avgVeg
 

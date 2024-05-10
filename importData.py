@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from util.NetworkFunctions import readBusData,readLineCodeData,readLineData, cft, getElevationByCoords
-from util.NetworkFunctions import readTransformerData, readLoadData, findNumLoads,findNodeNum, getLandCover, findEdgeElevation
+from util.NetworkFunctions import readTransformerData, readLoadData, findNumLoads,findNodeNum, getLandCover, findEdgeElevation, findAvgLineVegetation
 import pandas as pd
 import networkx as nx
 from util.ComponentClasses import Bus, Line, Load, Node, Edge
@@ -54,8 +54,7 @@ for load in loadData:
 NODES = []
 i=0
 for bus in BUSES:
-    print(i)
-    
+    print('Node ' + str(i))
     NODES.append(Node(bus.name, bus.baseVoltage,i,findNumLoads(bus.name,LOADS),cft(bus.coordinates),elevation=getElevationByCoords(bus.coordinates), vegetation=getLandCover(bus.coordinates)))
     i=i+1
 print('Nodes Created')
@@ -93,19 +92,19 @@ for node in NODES:
         'elevation':node.elevation,
         'vegetation':node.vegetation
         })
-
+i=0
 # Add Edges to Graph
 for edge in EDGES:
     if edge.enabled =='y':
-        G.add_edge(edge.bus1, edge.bus2, length = edge.length, elevation=findEdgeElevation(edge.bus1, edge.bus2, NODES), type = edge.type, location=edge.location, name = edge.name)
-
+        print('Edge ' + str(i))
+        G.add_edge(edge.bus1, edge.bus2, length = edge.length, elevation=findEdgeElevation(edge.bus1, edge.bus2, NODES), type = edge.type, location=edge.location, vegetation = findAvgLineVegetation(edge.bus1, edge.bus2, NODES,10), name = edge.name)
+        i=i+1
 # # Create a position mapping based on node coordinates 
 pos = {node.num: node.coords for node in NODES if node.coords is not None}
 
-
 # # # Draw the graph
-nx.draw_networkx(G, pos=pos,with_labels=True, node_size=30, font_size=6,arrows=True)
-plt.show()
+# nx.draw_networkx(G, pos=pos,with_labels=True, node_size=30, font_size=6,arrows=True)
+# plt.show()
 
 # # Edge List and Node List to Panda Dataframes
 el = nx.to_pandas_edgelist(G)
