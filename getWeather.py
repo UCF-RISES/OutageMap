@@ -42,11 +42,7 @@ for j in weatherEvents.index:
         
         # Query NLDAS2 for Weather Data
         timeframe = getWeatherByCoords(long, lat, begin, end)
-        # try:
-            
-        # except:
-        #     timeframe = getWeatherByCoords(long, lat, begin, end)
-        
+       
         # Convert uv wind components to wind speed
         tempWind = np.sqrt(np.square(timeframe["wind_u"]) + np.square(timeframe["wind_v"]))    
         # Append the rain to node event lists
@@ -54,7 +50,6 @@ for j in weatherEvents.index:
         
         # Append the wind to node event lists
         eventForNode1.append(tempWind * 2.23694)
-        print(tempWind * 2.23694)
     # Convert Lists to dataframe
     events = pd.DataFrame(eventForNode)
     events1 = pd.DataFrame(eventForNode1)

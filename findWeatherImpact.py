@@ -15,8 +15,6 @@ rainSeverityLevels = createLevelsAlt(0,6,10)
 # Process files for nodes
 for name in fileNames:
     alpha = {
-        # "elevation nodes": [0.75, 0.25],
-        # "vegetation": [0.6, 0.4]
         "elevation nodes": [0.4, 0.6],
         "vegetation": [0.8, 0.2]
     }
@@ -45,10 +43,11 @@ for name in fileNames:
         score_rain[0,i] = findWeatherLevel(minValuesRain[i],rainSeverityLevels)
         score_rain[1,i] = findWeatherLevel(maxValuesRain[i],rainSeverityLevels)
 
+
     # Create the normalized weather vector
     weatherVector[0,:] = np.linspace(score_wind[0,:], score_wind[1,:], num=n).T
     weatherVector[1,:] = np.linspace(score_rain[0,:], score_rain[1,:], num=n).T
-    
+
     # Compute weather impact for both interpolated points
     wi1 = weatherImpact(alpha, weatherVector[:,:,0])
     wi2 = weatherImpact(alpha, weatherVector[:,:,1])
@@ -75,9 +74,6 @@ fileNames = [f for f in os.listdir(directories[0]) if os.path.isfile(os.path.joi
 # Process files for edges
 for name in fileNames:
     alpha = {
-        #"elevation edges": [0.72, 0.28],
-        # "vegetation edges": [0.72, 0.28],
-        # "length": [0.88, 0.12], 
         "vegetation edges": [0.7, 0.3],
         "length": [0.9, 0.1], 
     }
@@ -118,7 +114,6 @@ for name in fileNames:
 
     # Create dictionary to hold final weather impact ranges
     wi = {
-        #"elevation edges": [0.72, 0.28],
         "vegetation edges": [],
         "length": []
     }

@@ -1,4 +1,4 @@
-from util.mainHelper import assign_values_to_ranges,assign_values_to_ranges_inv, createTables, generateProb, probOfNodeAndParent, plotTreeWithProb
+from util.mainHelper import assign_values_to_ranges, createTables, generateProb, probOfNodeAndParent, plotTreeWithProb
 import pandas as pd
 import numpy as np
 from collections import defaultdict
@@ -10,47 +10,45 @@ edgeFeatures = ["vegetation edges", "length"]
 numOfBins=10
 network = "P3R"
 
-
 # Mean and standard deviation of weather impacts (WI) for outage probability
-
 # Scenario 1 Parameters
 
-# meanWI = { 
-#     "elevation nodes": [0.65, 0.2],
-#     "vegetation": [0.5, 0.2],
-#     "length": [0.4, 0.18], 
-#     "vegetation edges": [0.6, 0.2]
-# }
-
-# stdWI = {
-#     "elevation nodes": [0.15, 0.05],
-#     "vegetation": [0.14, 0.05],
-#     "length": [0.15, 0.05],
-#     "vegetation edges": [0.15, 0.05],
-# }
-
-# Scenario 2 Parameters
-
 meanWI = { 
-    "elevation nodes": [0.6, 0.1],
-    "vegetation": [0.6, 0.1],
-    "length": [0.4, 0.08], 
-    "vegetation edges": [0.55, 0.1]
+    "elevation nodes": [0.65, 0.2],
+    "vegetation": [0.5, 0.2],
+    "length": [0.4, 0.18], 
+    "vegetation edges": [0.6, 0.2]
 }
 
 stdWI = {
-    "elevation nodes": [0.15, 0.02],
-    "vegetation": [0.15, 0.02],
-    "length": [0.18, 0.02], 
-    "vegetation edges": [0.15, 0.02],
+    "elevation nodes": [0.15, 0.05],
+    "vegetation": [0.14, 0.05],
+    "length": [0.15, 0.05],
+    "vegetation edges": [0.15, 0.05],
 }
+
+# Scenario 2 Parameters
+
+# meanWI = { 
+#     "elevation nodes": [0.6, 0.1],
+#     "vegetation": [0.6, 0.1],
+#     "length": [0.4, 0.08], 
+#     "vegetation edges": [0.55, 0.1]
+# }
+
+# stdWI = {
+#     "elevation nodes": [0.15, 0.02],
+#     "vegetation": [0.15, 0.02],
+#     "length": [0.18, 0.02], 
+#     "vegetation edges": [0.15, 0.02],
+# }
 
 # Initialize forecasted range dictionary
 forecastedRange = {}
 
 # Load node and edge data from CSV files
-nodes = pd.read_csv(f"./{network}/modNodeListNew.csv")
-edges = pd.read_csv(f"./{network}/modEdgeListNew.csv")
+nodes = pd.read_csv(f"./{network}/nodeList.csv")
+edges = pd.read_csv(f"./{network}/edgeList.csv")
 
 forecastedFactors = [["length", edges], ["vegetation edges", edges], ["elevation nodes", nodes], ["vegetation", nodes]]
 
@@ -69,7 +67,6 @@ G.add_edges_from(sorted(edgeList))
 # Process each forecasted factor to determine the forecasted ranges
 for name, component in forecastedFactors:
     names = name.split()
-    print(name)
     vals = np.round(component[names[0]].values,1)
     if name == "elevation nodes":
         bins = assign_values_to_ranges(vals, numOfBins, inv=True)

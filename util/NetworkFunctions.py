@@ -1,19 +1,9 @@
 import re
-from pathlib import Path
 import pynldas2 as nldas
-from pygeohydro import WBD
 import pygeohydro as gh
-from pynhd import NLDI
 import py3dep
 import numpy as np
-import pandas as pd
-import networkx as nx
-import matplotlib.pyplot as plt
-from util.ComponentClasses import Bus, Line, Load, Node, Edge
-import os
 from math import radians, sin, cos, sqrt, atan2, degrees
-import time
-import multiprocessing 
 from datetime import datetime
 import math
 
@@ -593,35 +583,100 @@ def nodeNameSplit(text):
     return text.split('.')[0]
 
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371.0  # Radius of Earth in kilometers
+    """
+    Calculate the great-circle distance between two points on the Earth's surface 
+    using the Haversine formula. This formula is useful for calculating the shortest 
+    distance over the Earth's surface, giving an 'as-the-crow-flies' distance between 
+    the coordinates.
+
+    Parameters:
+    lat1 (float): Latitude of the first point in decimal degrees.
+    lon1 (float): Longitude of the first point in decimal degrees.
+    lat2 (float): Latitude of the second point in decimal degrees.
+    lon2 (float): Longitude of the second point in decimal degrees.
+
+    Returns:
+    float: Distance between the two points in kilometers.
+
+    """
+    # Radius of Earth in kilometers
+    R = 6371.0 
+    
+    # Calculate the differences in coordinates in radians
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
+    
+    # Apply the Haversine formula
     a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    
+    # Return the calculated distance in kilometers
     return R * c
 
 def interpolate_points(lat1, lon1, lat2, lon2, n):
+    """
+    Generate a list of `n` equally spaced points on the great-circle path between two geographic coordinates. 
+    The points are interpolated using spherical trigonometry.
+
+    Parameters:
+    lat1 (float): Latitude of the first point in decimal degrees.
+    lon1 (float): Longitude of the first point in decimal degrees.
+    lat2 (float): Latitude of the second point in decimal degrees.
+    lon2 (float): Longitude of the second point in decimal degrees.
+    n (int): Number of points to interpolate (including the start and end points).
+
+    Returns:
+    tuple: Two lists (LAT, LON) containing the interpolated latitudes and longitudes of the points, in decimal degrees.
+
+    """
+    # Convert input coordinates from decimal degrees to radians
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    
+    # Calculate the great-circle distance between the two points
     d = haversine(lat1, lon1, lat2, lon2)
+    # Initialize lists to hold the interpolated latitude and longitude points
     LAT = []
     LON = []
+    # Loop through the number of required points
     for i in range(n):
+        # Calculate the fractional distance along the great-circle path
         fraction = i / (n - 1)
+        
+        # Apply the interpolation formula using spherical trigonometry
         A = sin((1 - fraction) * d) / sin(d)
         B = sin(fraction * d) / sin(d)
         
+        # Determine the coordinates of the interpolated point in Cartesian coordinates
         x = A * cos(lat1) * cos(lon1) + B * cos(lat2) * cos(lon2)
         y = A * cos(lat1) * sin(lon1) + B * cos(lat2) * sin(lon2)
         z = A * sin(lat1) + B * sin(lat2)
         
+        # Convert back to latitude and longitude in radians
         lat = atan2(z, sqrt(x ** 2 + y ** 2))
         lon = atan2(y, x)
+        
+        # Append the interpolated latitude and longitude in decimal degrees to the result lists
         LAT.append(degrees(lat))
         LON.append(degrees(lon))
+    # Return the lists of interpolated latitude and longitude points
     return LAT,LON
 
-
 def findAvgLineVegetation(bus1,bus2, nodes, n):
+    """
+    Find the average vegetation canopy cover between two nodes specified by their IDs (bus1 and bus2).
+    The function interpolates points between the two nodes and calculates the average canopy cover
+    using vegetation data.
+
+    Parameters:
+    bus1 (int or str): ID of the first bus (node).
+    bus2 (int or str): ID of the second bus (node).
+    nodes (list): A list of node objects. Each node is expected to have attributes `num` (ID) and `coords` (longitude, latitude).
+    n (int): The number of points to interpolate between the two nodes.
+
+    Returns:
+    float: The average vegetation canopy cover percentage over the interpolated path between the two nodes.
+
+    """
     # Loops through all the nodes
     for node in nodes:
         # Finds the node number for the first node and grabs it coords
@@ -630,14 +685,23 @@ def findAvgLineVegetation(bus1,bus2, nodes, n):
         # Finds the node number for the second node and grabs it coords
         if bus2 == node.num:
             end = node.coords
-
+    
+    # Extract the coordinates from the nodes
     start_lon, start_lat = start
     end_lon, end_lat = end
-
+    
+    # Interpolate points between the two coordinates
     lat,lon = interpolate_points(start_lat, start_lon, end_lat, end_lon, n)
+    
+    # Retrieve vegetation data (e.g., canopy cover) for the interpolated points
     tcc = gh.nlcd_bycoords(zip(lon,lat),years={"canopy": [2019]})
+    
+    # Convert the canopy cover data to a NumPy array
     lineVeg = np.array(tcc['canopy_2019'])
+    
+    # Calculate the average vegetation canopy cover over the interpolated path
     avgVeg = np.sum(lineVeg) / n
-    print(avgVeg)
+    
+    # Return the calculated average vegetation canopy cover
     return avgVeg
 
