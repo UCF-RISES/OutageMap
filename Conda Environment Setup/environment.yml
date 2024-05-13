@@ -39,6 +39,7 @@ dependencies:
       - cycler==0.12.1
       - cytoolz==0.12.3
       - defusedxml==0.7.1
+      - et-xmlfile==1.1.0
       - fiona==1.9.6
       - folium==0.16.0
       - fonttools==4.51.0
@@ -59,6 +60,7 @@ dependencies:
       - netcdf4==1.6.5
       - networkx==3.3
       - numpy==1.26.4
+      - openpyxl==3.1.2
       - owslib==0.30.0
       - packaging==24.0
       - pandas==2.2.2
