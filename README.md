@@ -1,4 +1,4 @@
-# What is OutageMap and who is it for
+# OutageMap
 
 ## Installing OutageMap
 OutageMap was designed using Python and Anaconda. 
@@ -106,31 +106,57 @@ To scale the data and convert to a weather impact score, run `findWeatherImpact.
 To generate the outage data, run `main.py`.
 
 # File Explanations
+
 ## `importData.py`
-Lines 11-16 define the paths to the OpenDSS files.
+Lines `11-16` define the paths to the OpenDSS files.
+
 ### Data Extraction: 
-Lines 19-31 deal with extraction of DSS data from text file formats using re.search function:
+Lines `19-31` deal with extraction of DSS data from text file formats using re.search function:
 -	Bus Data: The readBusData function retrieves the bus name, coordinates, base voltage, and the number of connected nodes from the bus feeder text file.
 -	Transformer Data: The readTransformerData function extracts key transformer attributes such as the transformer's name, number of phases, windings, normal high voltage capacity (NormHKVA), winding numbers (Wdg), connection types (ConnType), voltage levels (kV), capacity (kVA), and connected buses from Transformers.dss.
 -	Line Code Data: In the readLineCodeData function, parameters such as the line code's name, number of phases, fault rate, resistance matrix (R), reactance matrix (X), capacitance matrix (C), and normal ampacity are parsed from LineCodes.dss.
 -	Line Data: The readLineData function extracts information such as the line's name, length, connected buses, number of phases, switch status, enabled status, and the line code from Lines.dss.
 -	Load Data: The readLoadData function obtains the load's name, connection type, bus, voltage levels (kV, Vminpu, Vmaxpu), power (kW, kvar), and number of phases from Loads.dss.
-Organizing Data: Lines 36-75 focus on organizing the extracted data into lists for each network component. These lists are then used to construct graph components representing nodes and edges.
--	Node Data: Nodes are created with attributes such as name, voltage, and coordinates, along with geographical data like elevation and vegetation type, which are obtained using HyRiver functions. Elevation data is obtained from HyRiver’s Py3DEP, which utilizes USGS’s 3DEP data. Vegetation data is obtained from HyRiver’s PyGeoHydro, which utilizes the NLCD 2021 for land cover/ land use data.
+
+### Organizing Data: 
+Lines `36-75` focus on organizing the extracted data into lists for each network component. These lists are then used to construct graph components representing nodes and edges.
+-	Node Data: Nodes are created with attributes such as name, voltage, and coordinates, along with geographical data like elevation and vegetation type, which are obtained using HyRiver functions. Elevation data is obtained from HyRiver’s Py3DEP, which utilizes USGS’s 3DEP data. Vegetation data is obtained from HyRiver’s PyGeoHydro, which utilizes the NLCD 2021 for land cover/land use data.
 -	Edge Data: Edges represent connections between nodes, incorporating attributes like length, type, elevation and operational status. The midpoint of the edge is used to determine the edge elevation. By averaging the coordinates of two connected nodes, one can utilize the same function for finding the node elevation to find the elevation at the midpoint.
+
 ### Graph Construction and Visualization: 
 The nodes and edges are then aggregated into a graph, specifically the Multi-DiGraph structure, using the Python package NetworkX. This approach allows for detailed attributes to be associated with each node and edge element, facilitating complex network analyses and visualizations. Using ‘nx.draw_networkx’, the graph of the distribution network can be visualized to show the connectivity and layout of network components.
+
 ### Exporting Data: 
 After visualizing the graph, the last step is to export the data. Although NetworkX allows for the edge list of the graph to be exported directly, the node list must be created manually. To achieve this, as nodes are added to the graph, their information is simultaneously appended to a dictionary called nodeDict. Once the edge and node lists, which contains the attributes for each node and edge, are obtained, they can then be converted to Pandas Dataframes and subsequently exported as CSV files for future use.
 
 ## `getWeather.py`
-To import the weather event into Python, we utilize the getWeather.py script. The inputs to this script (lines 13-20) are the node and edge lists, along with the storm event csv file. The script is set up so that multiple events can be defined in one csv file, but for the purpose of this tutorial, we only have one event so the loop in lines 27 will only have one iteration. Starting from line 27, we open the csv file and grab the start and end dates and times. Then the loop starting from line 37 loops through each node in the node list. First the coordinates of the node are extracted, then the getWeatherByCoords function is called to grab the hourly wind and rain data at the specific coordinate. The wind data is given as uv components and is transformed to wind speed and converted to mph from m/s through line 51-56.
-The next portion of the code determines the weather for the edges by taking the average weather data between two nodes. Lines 70 through 73 grab the node weather data from the event. Lines 76-78 create a simple edge list to reference when calculating the average weather. Lines 83-87 grab the wind and rain data for the nodes, and lines 90-91 initialize dataframes for the edge weather. Lines 94-101 calculate the average wind and rain values between two nodes and adds them to the edge data frames. Lines 104 – 109 rename the edgelist dataframe and then save it to a CSV file.
+To import the weather event into Python, we utilize the getWeather.py script. The inputs to this script (lines `13-20`) are the node and edge lists, along with the storm event csv file. 
+
+The script is set up so that multiple events can be defined in one csv file, but for the purpose of this tutorial, we only have one event so the loop in lines `27` will only have one iteration. 
+
+Starting from line `27`, we open the csv file and grab the start and end dates and times. Then the loop starting from line `37` loops through each node in the node list. First the coordinates of the node are extracted, then the `getWeatherByCoords` function is called to grab the hourly wind and rain data at the specific coordinate. The wind data is given as uv components and is transformed to wind speed and converted to mph from m/s through line `51-56`.
+
+
+The next portion of the code determines the weather for the edges by taking the average weather data between two nodes. 
+Lines `70-73` grab the node weather data from the event. 
+Lines `76-78` create a simple edge list to reference when calculating the average weather. 
+Lines `83-87` grab the wind and rain data for the nodes, and lines `90-91` initialize dataframes for the edge weather. 
+Lines `94-101` calculate the average wind and rain values between two nodes and adds them to the edge data frames. Lines 104 – 109 rename the edgelist dataframe and then save it to a CSV file.
 
 
 ## `findWeatherImpact.py`
 
-Once the weather event has been downloaded and imported into Python, we need to scale the data and convert to a weather impact score. We will use findWeatherImpact.py to calculate it. We start by setting the network and paths in lines 6-9. Lines 12-13 call on createLevelsAlt in mainHelper.py to generate severity levels for the weather values. Lines 16 loops through each weather event that was imported. Lines ?? set the alpha values for node features. Lines 23-27 read in the weather data and remove and the unnamed column in the file. From the weather event, the minimum and maximum values are found then used to create the upper and lower bounds of the forecasted interval. Lines 36-38 create the vectors to store the upper and lower bounded weather impact scores in. Lines 41 through 46 loops through each node to normalize its lower and upper bound weather values to be within the range of [0, 1]. Lines 49-50 set the weather impact interval at for all features at each node. Lines 53-54 calculate the weather impact my multiplying alpha transpose with the weather score. Lines 56-69 formats the weather impact for high and low scenarios, stores the data in a pandas data frame then converts the data frame to a csv and saves it. Lines 71-133 repeat the exact same process for the edges in the network.
+Once the weather event has been downloaded and imported into Python, we need to scale the data and convert to a weather impact score. We will use `findWeatherImpact.py` to calculate it. 
+
+We start by setting the network and paths in lines `6-9`. Lines `12-13` call on `createLevelsAlt` in `mainHelper.py` to generate severity levels for the weather values. 
+
+Lines `16` loops through each weather event that was imported. Lines `FIXTHIS` set the alpha values for node features. Lines `23-27` read in the weather data and remove and the unnamed column in the file. From the weather event, the minimum and maximum values are found then used to create the upper and lower bounds of the forecasted interval.
+
+Lines `36-38` create the vectors to store the upper and lower bounded weather impact scores in. Lines `41-46` loops through each node to normalize its lower and upper bound weather values to be within the range of [0, 1]. Lines `49-50` set the weather impact interval at for all features at each node. 
+ 
+Lines `53-54` calculate the weather impact my multiplying alpha transpose with the weather score. Lines `56-69` formats the weather impact for high and low scenarios, stores the data in a pandas data frame then converts the data frame to a csv and saves it. 
+ 
+Lines `71-133` repeat the exact same process for the edges in the network.
 
 ## `main.py`
 ### Initialization
