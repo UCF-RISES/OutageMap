@@ -12,7 +12,7 @@ Open the Anaconda Prompt and navigate to `OutageMap/Conda Environment Setup` whe
 ```
 This creates the Python environment named `OutageMap1`, with all the packages needed to run the software.
 
-3. To activate the environment, run:
+ To activate the environment, run:
 ``` shell
 	conda activate OutageMap1
 ```
@@ -60,7 +60,7 @@ To redownload them, you can use the following:
 ### Extracting Data from OpenDSS files
 To extract the data from the OpenDSS circuit into Python, run `OutageMap/importData.py`
 
-![Alt text](imgs\importedPlot.png?raw=true "Title")
+![Alt text](imgs/importedPlot.png?raw=true "Title")
 
 ### Collection of Extreme Weather Events
 The collection of extreme weather events starts on NOAA’s Storm Event Database. As stated in the paper, the chosen event for this tutorial is a “bomb cyclone” event that occurred on March 21st, 2023 in the Greater San Francisco Area. 
@@ -77,7 +77,7 @@ We start by heading to the site at https://www.ncdc.noaa.gov/stormevents/.
 
 3. The results, as shown below, indicate 7 events that occurred during March 21st all relating to strong or high wind events. To download this data, we click `CSV Download`, which is encased in a black box in image below.
 
-![Alt text](imgs\StormDataResults.png?raw=true "Title")
+![Alt text](imgs/StormDataResults.png?raw=true "Title")
 
 Next, we open the downloaded CSV to modify the contents through the following:
 
@@ -95,7 +95,7 @@ To scale the data and convert to a weather impact score, run `OutageMap/findWeat
 ### Generating the Outage Data
 To generate the outage data, run `OutageMap/main.py`. Upon successful execution, you should obtain the outage map below
 
-![Alt text](imgs\scenario1_outageMapNew.png?raw=true "Title")
+![Alt text](imgs/scenario1_outageMapNew.png?raw=true "Title")
 
 <!-- # Code Explanations
 
