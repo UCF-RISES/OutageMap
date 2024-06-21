@@ -1,7 +1,8 @@
 # OutageMap
+OutageMap is an open-source package that can be used to generate weather related outage data for a given power distribution network. The framework uses a set of fragility curves to describe the extent of weather impacts on physical features, which can be applied in a straightforward way to real-world networks and extreme weather conditions once data of the actual physical networks and their past impact outcomes becomes available
 
 ## Installing OutageMap
-OutageMap was designed using Python and Anaconda. 
+OutageMap was designed using Python 3.11.9 and Anaconda. 
 
 If you do not have an existing Anaconda installation, go to https://www.anaconda.com/products/individual, click on skip registration, and then click the green download button.
 
@@ -25,7 +26,7 @@ To redownload them, you can use the following:
     ``` shell
     aws --version 
     ```
-2. In the same `Command Prompt` navigate to the `P3R/DSS` and run the command 
+2. In the same `Command Prompt` navigate to the `OutageMap/P3R/DSS` and run the command 
     ```shell
     mkdir P3R && cd P3R && mkdir profiles && mkdir scenarios && cd scenarios && mkdir base_timeseries && cd base_timeseries && mkdir opendss && cd opendss && cd ../../..
     ```
@@ -40,41 +41,28 @@ To redownload them, you can use the following:
     aws s3 cp s3://oedi-data-lake/SMART-DS/v1.0/2018/SFO/P3R/profiles/ ./profiles --recursive --no-sign-request
     ```
 
-4. Once the data has completed downloading, you may close the command prompt and run OpenDSS. If you do not have OpenDSS you may download it from https://sourceforge.net/projects/electricdss/.
+    Once the data has completed downloading, you may close the command prompt. If you do not have OpenDSS you may download it from https://sourceforge.net/projects/electricdss/. It may be needed to use the Python package `opendssdirect`.
 
-5. In OpenDSS, go to `File->Open` and then open the following file: 
-    `P3R\scenarios\base_timeseries\opendss\p3rhs0_1247\p3rhs0_1247--p3rdt1052\Master.dss`
-
-    Once the file opens, comment out the last 6 lines by placing an `!` at the front of each line, and then save the file. 
-
-6. After saving the file, find the Compile File Listed button (gray button near top middle) to initialize the network. OpenDSS will compile the network and will display results and statistics on the side when it is completed. 
-
-7. Press `Show->Buses`. This will show a Bus List text file that can be closed after opening. 
-
-8. Press `Show->Elements`. This will show a Element List text file that can be closed after opening. 
-
-9. Inside `P3R\scenarios\base_timeseries\opendss\p3rhs0_1247\p3rhs0_1247--p3rdt1052`, 
-you should now see two new files
-    - feeder_p3rdt1052-p3rhs0_1247x_Buses.txt
-    - feeder_p3rdt1052-p3rhs0_1247x_Elements.txt
-
-    For the final step, we now want to copy the files:
-    -   feeder_p3rdt1052-p3rhs0_1247x_Buses.txt
-    -   feeder_p3rdt1052-p3rhs0_1247x_Elements.txt
+4. Navigate to  `OutageMap/P3R/DSS/P3R/scenarios/base_timeseries/opendss/p3rhs0_1247/p3rhs0_1247--p3rdt1052` and you should now see the files
+    -   Buscoords.dss   
+    -   Capacitors.dss 
     -	Lines.dss
     -	LineCodes.dss
     -	Loads.dss
+    -   Loadshapes.dss
+    -   Master.dss
     -	Transformers.dss
 
-    from
-    `P3R\DSS\P3R\scenarios\base_timeseries\opendss\p3rhs0_1247\p3rhs0_1247--p3rdt1052` 
-    to `P3R\DSS`.
+    For the final step, we now want to copy these files, along with the folder labeled `OutageMap/P3R/DSS/P3R/profiles` to `OutageMap/P3R/DSS/profiles`. Then folder `OutageMap/P3R/DSS/P3R` can be removed. 
 
+5. Open `OutageMap/P3R/DSS/Loadshapes.dss`, press `Ctrl+F` and replace every occurence of `../../../../../profiles` to `profiles`.
 
 ### Extracting Data from OpenDSS files
-To extract the data from the OpenDSS files into Python, run `importData.py`
-### Collection of Extreme Weather Events
+To extract the data from the OpenDSS circuit into Python, run `OutageMap/importData.py`
 
+![Alt text](imgs\importedPlot.png?raw=true "Title")
+
+### Collection of Extreme Weather Events
 The collection of extreme weather events starts on NOAA’s Storm Event Database. As stated in the paper, the chosen event for this tutorial is a “bomb cyclone” event that occurred on March 21st, 2023 in the Greater San Francisco Area. 
 
 We start by heading to the site at https://www.ncdc.noaa.gov/stormevents/. 
@@ -83,11 +71,13 @@ We start by heading to the site at https://www.ncdc.noaa.gov/stormevents/.
 2. The next page is a advanced search tool. We set  
     - Set the start and end data to 03/21/2023 and 03/22/2023
     - San Francisco for the County 
-    - all events for event type 
+    - All events for event type 
     
     and then press search. 
-    
-3. The results should indicate 7 events that occurred during March 21st all relating to strong or high wind events. To download this data, we click `CSV Download`.
+
+3. The results, as shown below, indicate 7 events that occurred during March 21st all relating to strong or high wind events. To download this data, we click `CSV Download`, which is encased in a black box in image below.
+
+![Alt text](imgs\StormDataResults.png?raw=true "Title")
 
 Next, we open the downloaded CSV to modify the contents through the following:
 
@@ -97,32 +87,34 @@ Next, we open the downloaded CSV to modify the contents through the following:
 
 3. Once these changes have been made, the file can be saved in the OutageMap directory and closed.
 
-To import the weather event from the CSV into Python, run `getWeather.py`
+To import the weather event from the CSV into Python, run `OutageMap/getWeather.py`
 
 ### Conversion of Weather Features to Weather Impact Score
-To scale the data and convert to a weather impact score, run `findWeatherImpact.py`. 
+To scale the data and convert to a weather impact score, run `OutageMap/findWeatherImpact.py`. 
 
 ### Generating the Outage Data
-To generate the outage data, run `main.py`.
+To generate the outage data, run `OutageMap/main.py`. Upon successful execution, you should obtain the outage map below
 
-# File Explanations
+![Alt text](imgs\scenario1_outageMapNew.png?raw=true "Title")
+
+<!-- # Code Explanations
 
 ## `importData.py`
-Lines `11-16` define the paths to the OpenDSS files.
+Line `11` runs the `Master.dss` file to load the circuit. Lines `14-18` acquire the names of all buses, lines, elements, transformers, and loads in the network. Lines `21-26` initialize empty lists that will be used to store the network data.Lines `29-33` loops through all the buses in the network, acquires the data, and adds it to the bus list. Lines `35-64` repeat this process for lines, transformers, and loads. The data that was acquired is specified in the code comments. Lines `66-71` loops through the bus list, assigns the bus data to a node object, and stores the object in a node list. Lines `77-84` loops through line and transformer lists,  assigns the data to a edge object, and stores the object in a edge list. Line `90` creates graph object to represent the network.Lines `95-105` loop through the nodes, adds the nodes to the graph, and then formats the node data into a dictionary. NetworkX does not return a node dictionary with assigned attributes so one is created manually instead. Lines `107-114` loops through the edges, checks if the edge is enabled, and then adds the edge tp the graph along with it's attributes. During this time, the edge vegetation is also determined. Line `117` creates a position mapping for the graph using the bus coordinates. This allows for the physical layout of the network to be displayed. Lines `120-121` plots the graph using labels and arrows. Lines `124` gets the edge list from the graph directly and converts it to a dataframe. Line `125` takes the node dictionary and converts it to a dataframe. Lines`128-129` convert the dataframes to csv files.
 
 ### Data Extraction: 
-Lines `19-31` deal with extraction of DSS data from text file formats using re.search function:
+<!-- Lines `19-31` deal with extraction of DSS data from text file formats using re.search function:
 -	Bus Data: The readBusData function retrieves the bus name, coordinates, base voltage, and the number of connected nodes from the bus feeder text file.
 -	Transformer Data: The readTransformerData function extracts key transformer attributes such as the transformer's name, number of phases, windings, normal high voltage capacity (NormHKVA), winding numbers (Wdg), connection types (ConnType), voltage levels (kV), capacity (kVA), and connected buses from Transformers.dss.
 -	Line Code Data: In the readLineCodeData function, parameters such as the line code's name, number of phases, fault rate, resistance matrix (R), reactance matrix (X), capacitance matrix (C), and normal ampacity are parsed from LineCodes.dss.
 -	Line Data: The readLineData function extracts information such as the line's name, length, connected buses, number of phases, switch status, enabled status, and the line code from Lines.dss.
--	Load Data: The readLoadData function obtains the load's name, connection type, bus, voltage levels (kV, Vminpu, Vmaxpu), power (kW, kvar), and number of phases from Loads.dss.
+-	Load Data: The readLoadData function obtains the load's name, connection type, bus, voltage levels (kV, Vminpu, Vmaxpu), power (kW, kvar), and number of phases from Loads.dss. 
 
 ### Organizing Data: 
 Lines `36-75` focus on organizing the extracted data into lists for each network component. These lists are then used to construct graph components representing nodes and edges.
 -	Node Data: Nodes are created with attributes such as name, voltage, and coordinates, along with geographical data like elevation and vegetation type, which are obtained using HyRiver functions. Elevation data is obtained from HyRiver’s Py3DEP, which utilizes USGS’s 3DEP data. Vegetation data is obtained from HyRiver’s PyGeoHydro, which utilizes the NLCD 2021 for land cover/land use data.
--	Edge Data: Edges represent connections between nodes, incorporating attributes like length, type, elevation and operational status. The midpoint of the edge is used to determine the edge elevation. By averaging the coordinates of two connected nodes, one can utilize the same function for finding the node elevation to find the elevation at the midpoint.
-
+-	Edge Data: Edges represent connections between nodes, incorporating attributes like length, type, elevation and operational status. The midpoint of the edge is used to determine the edge elevation. By averaging the coordinates of two connected nodes, one can utilize the same function for finding the node elevation to find the elevation at the midpoint. -->
+<!-- 
 ### Graph Construction and Visualization: 
 The nodes and edges are then aggregated into a graph, specifically the Multi-DiGraph structure, using the Python package NetworkX. This approach allows for detailed attributes to be associated with each node and edge element, facilitating complex network analyses and visualizations. Using ‘nx.draw_networkx’, the graph of the distribution network can be visualized to show the connectivity and layout of network components.
 
@@ -172,4 +164,4 @@ generateProb starts by checking if the node is valid and initializes lists to st
 Once the conditional probabilities of damage have been determined, then the joint probability of service outage at each node can be calculated. The list of conditional probabilities for the nodes and edge, along with the graph structure are passed to probOfNodeAndParent. 
 probOfNodeAndParent starts by creating initializing a new list to store the joint probabilities. This is done by copying the node probability list. Starting from the root node, a queue is then initialized for breadth first search of the graph, processing each nodes child sequentially.  ally. For each parent-child pair, it updates the child's probability by applying the inclusion-exclusion principle on the probabilities of the parent, child, and their connecting edge. The updated probability list is returned.
 ### Visualizing the Results
-After probOfNodeAndParent is returned, we now have the joint probability of service outage (in the form of a interval) for all the nodes in the network. To visualize the results, we take the mean of the interval, and utilize the plotTreeWithProb function. plotTreeWithProb creates a figure of the graph using networkx and defines a color map corresponding to the probability of service outage. In the colormap, green means a low probability and red indicates a high probability. Each node is then colored according to their probability and the figured is displayed.
+After probOfNodeAndParent is returned, we now have the joint probability of service outage (in the form of a interval) for all the nodes in the network. To visualize the results, we take the mean of the interval, and utilize the plotTreeWithProb function. plotTreeWithProb creates a figure of the graph using networkx and defines a color map corresponding to the probability of service outage. In the colormap, green means a low probability and red indicates a high probability. Each node is then colored according to their probability and the figured is displayed. --> 

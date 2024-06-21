@@ -1,115 +1,128 @@
 import matplotlib.pyplot as plt
-from util.NetworkFunctions import readBusData,readLineCodeData,readLineData, cft, getElevationByCoords
-from util.NetworkFunctions import readTransformerData, readLoadData, findNumLoads,findNodeNum, getLandCover, findEdgeElevation, findAvgLineVegetation
-import pandas as pd
 import networkx as nx
-from util.ComponentClasses import Bus, Line, Load, Node, Edge
-import matplotlib.pyplot as plt 
+import opendssdirect as dss
+import pandas as pd
+from util.NetworkFunctions import getElevationByCoords, fixBusName,findNodeNum, getLandCover,findAvgLineVegetation
+from util.ComponentClasses import Bus, Line, Load, Node, Edge, Transformer
+import warnings
+warnings.filterwarnings("ignore")
 
+# Load the P3R Network
+dss.Command('Redirect P3R/DSS/Master.dss')
 
-# File Paths
-transformerPath ="P3R/DSS/Transformers.dss"
-busPath ="P3R/DSS/feeder_p3rdt1052-p3rhs0_1247x_Buses.Txt"
-elementPath = "P3R/DSS/feeder_p3rdt1052-p3rhs0_1247x_Elements.Txt"
-linePath = "P3R/DSS/Lines.dss"
-lineCodePath = "P3R/DSS/LineCodes.dss"
-loadPath = "P3R/DSS/Loads.dss"
+# Acquire a list of buses, lines, elements, transformers, and loads
+buses = dss.Circuit.AllBusNames()
+lines = dss.Lines.AllNames()
+elements = dss.Circuit.AllElementNames()
+transformers  = [item for item in elements if 'Transformer' in item]
+loads = [item for item in elements if 'Load' in item] 
 
-
-# Parse buses.txt and put data into dictionary
-busData=readBusData(busPath)
-
-# Parse transformers.dss and put data into dictionary
-transformerData=readTransformerData(transformerPath)
-
-# Parse linecodes.dss and put data into dictionary
-lineCodeData=readLineCodeData(lineCodePath)
-
-# Parse Lines.dss and put data into dictionary
-lineData = readLineData(linePath)
-
-# Parse Loads.dss and put data into dictionary
-loadData=readLoadData(loadPath)
-
-print('Data Read From CSV')
-
-# Append Bus Data to list
+# Initialize empty list for circuit and graph components
 BUSES=[]
-for bus in busData:
-    BUSES.append(Bus(bus['Bus'],bus['Coord'],bus['Base_kV'],len(bus['Nodes Connected'])))
-
-# Append Line Data to list
 LINES = []
-i=0 
-for line in lineData:
-    LINES.append(Line(line['Name'], line['Length'], line['Bus1'].split('.')[0], line['Bus2'].split('.')[0], line['Switch'], line['Enable'], line['Phases'], line['LineCode']))
-
-# Append Load Data to list
+TRANSFORMERS = []
 LOADS = []
-i=0 
-for load in loadData:
-    LOADS.append(Load(load['Name'], load['Connection'], load['Bus'].split('.')[0], load['kV'], load['kW'],load['kvar'], load['Vminpu'], load['Vmaxpu'], load['Phases']))
-
-# Append Buses to Node List
 NODES = []
-i=0
-for bus in BUSES:
-    print('Node ' + str(i))
-    NODES.append(Node(bus.name, bus.baseVoltage,i,findNumLoads(bus.name,LOADS),cft(bus.coordinates),elevation=getElevationByCoords(bus.coordinates), vegetation=getLandCover(bus.coordinates)))
-    i=i+1
-print('Nodes Created')
-# Append Lines and Transformers to Node List
 EDGES = []
+
+# Loop through buses, and append bus data to bus list
+for bus in buses:
+    dss.Circuit.SetActiveBus(bus)
+    # Append [Name, (X,Y), Base kV] to bus object and store in list
+    BUSES.append(Bus(dss.Bus.Name(),(dss.Bus.X(),dss.Bus.Y()),dss.Bus.kVBase()))
+
+# Loop through lines, and append line data to line list
+for line in lines:
+    # Set the current line
+    dss.Lines.Name(line)
+    # Set the current line (element form to get enabled)
+    dss.Circuit.SetActiveElement(line)
+    # Append [Name, Length, Bus1, Bus2, Enabled] to line object and store list
+    LINES.append(Line(dss.Lines.Name(),dss.Lines.Length(),dss.Lines.Bus1(),dss.Lines.Bus2(),dss.CktElement.Enabled()))
+
+# Loop through transformers
+for transformer in transformers:
+    # Set the current transformer
+    dss.Circuit.SetActiveElement(transformer)
+    # Get the buses attached to transformers
+    busesT = dss.CktElement.BusNames()
+    # Remove the node number from bus name for simplification
+    newBusT = fixBusName(busesT)
+    # Append [Name, Bus1 Bus2 WdgVoltages and WdgCurrents] to Transformer object and store in list
+    TRANSFORMERS.append(Transformer(dss.Element.Name(),newBusT[0],newBusT[1],dss.Transformers.WdgVoltages(),dss.Transformers.WdgCurrents()))
+
+# Loop through loads
+for load in loads:
+    # Set the current load element
+    dss.Circuit.SetActiveElement(load)
+    # Get the bus attached to the load
+    lBus = dss.CktElement.BusNames()
+    # Fix the bus name for simplicity
+    newBusL = fixBusName(lBus)
+    # Append [Name, Bus, kV, kvar, Vminpu, Vmaxpu, Phases] to Load object and store in list
+    LOADS.append(Load(dss.Loads.Name(), newBusL[0], dss.Loads.kV(), dss.Loads.kW(), dss.Loads.kvar(), dss.Loads.Vminpu(), dss.Loads.Vmaxpu(), dss.Loads.Phases()))
+
+# Loop through bus list
+for i, bus in enumerate(BUSES):
+    # Print the node number for progress check
+    print('Node ' + str(i))
+    # Append [Name, Num, Coord, Elevation, Vegetation] to node object and store in node list
+    NODES.append(Node(bus.name,i,bus.coordinates,elevation=getElevationByCoords(bus.coordinates), vegetation=getLandCover(bus.coordinates)))
+
+# Print Progress Update
+print('Nodes Created')
+
+# Loop through lines
 for line in LINES:
-    if 'UG' in line.linecode:
-        location = 0
-    else:
-        location = 1
-    if 'switch' in line.linecode:
-        type = 0
-    else:
-        type = 1
-    EDGES.append(Edge(line.name,line.length,type, findNodeNum(line.bus1, NODES),findNodeNum(line.bus2, NODES), line.switch, line.enabled, location))
+    # Append [Name, Length, Node1, Node2, Enabled] to Edge object and store in list
+    EDGES.append(Edge(line.name,line.length,findNodeNum(line.bus1, NODES),findNodeNum(line.bus2, NODES),line.enabled))
 
-for tf in transformerData:
-    EDGES.append(Edge(tf['Name'],0,2, findNodeNum(tf['bus'][0], NODES),findNodeNum(tf['bus'][1], NODES),'n', 'y',1))
+# Loop through transformers
+for tf in TRANSFORMERS:
+    # Append [Name, 0, Node1, Node2, 1] to Edge object and store in list
+    EDGES.append(Edge(tf.name,0, findNodeNum(tf.bus1, NODES),findNodeNum(tf.bus2, NODES),1))
 
+# Print Progress Update
 print('Edges Created')
+
 # Create a new graph. # Need to use a graph class that includes Multi (MultiGraph, MultiDiGraph, etc.)
 G = nx.MultiDiGraph()
 
-# Initialize a node dictionary
+# Initialize a node dictionary to convert to csv
 nodeDict = []
 
-# Add Nodes to Graph
+# Loop through node list
 for node in NODES:
-    G.add_node(node.num, name = node.name, voltage = node.voltage, loads = node.loads, coords = node.coords)
+    # Add the Node to Graph G
+    G.add_node(node.num, name = node.name, coords = node.coords)
+    # Add Node Data to dictionary entry and store in list
     nodeDict.append({
         'name':node.name,
-        'voltage':node.voltage,
-        'POF':node.loads,
         'coords':node.coords,
         'elevation':node.elevation,
         'vegetation':node.vegetation
         })
-i=0
-# Add Edges to Graph
-for edge in EDGES:
-    if edge.enabled =='y':
+
+# Loop through edges
+for i, edge in enumerate(EDGES):
+    # Check if the edge is enabled
+    if edge.enabled ==1:
+        # Print the edge number for progress update
         print('Edge ' + str(i))
-        G.add_edge(edge.bus1, edge.bus2, length = edge.length, elevation=findEdgeElevation(edge.bus1, edge.bus2, NODES), type = edge.type, location=edge.location, vegetation = findAvgLineVegetation(edge.bus1, edge.bus2, NODES,10), name = edge.name)
-        i=i+1
-# # Create a position mapping based on node coordinates 
+        # Add the Edge to Graph G and assign edge data to corresponding attributes
+        G.add_edge(edge.bus1, edge.bus2,name = edge.name, length = edge.length, vegetation = findAvgLineVegetation(edge.bus1, edge.bus2, NODES,10))
+
+# Create a position mapping based on node coordinates 
 pos = {node.num: node.coords for node in NODES if node.coords is not None}
 
-# # # Draw the graph
-# nx.draw_networkx(G, pos=pos,with_labels=True, node_size=30, font_size=6,arrows=True)
-# plt.show()
+# Draw the graph
+nx.draw_networkx(G, pos=pos,with_labels=True, node_size=30, font_size=6,arrows=True)
+plt.show()
 
-# # Edge List and Node List to Panda Dataframes
+# Convert Edge List and Node List to Panda Dataframes
 el = nx.to_pandas_edgelist(G)
 nl = pd.DataFrame(nodeDict)
 
-# # Panda Dataframes to Edge List and Node List csv
+# Convert Panda Dataframes to Edge List and Node List CSV
 pd.DataFrame.to_csv(nl,'P3R/nodeList.csv')
 pd.DataFrame.to_csv(el,'P3R/edgeList.csv')
