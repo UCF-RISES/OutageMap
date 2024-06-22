@@ -1,4 +1,4 @@
-\# OutageMap
+# OutageMap
 OutageMap is an open-source software that can be used to generate weather related outage data for a given power distribution network. The framework uses a set of fragility curves to describe the extent of weather impacts on physical features, which can be applied in a straightforward way to real-world networks and extreme weather conditions once data of the actual physical networks and their past impact outcomes becomes available
 
 ## Installing OutageMap
@@ -100,7 +100,7 @@ To generate the outage data, run `OutageMap/main.py`. Upon successful execution,
 The MIT License (MIT)
 =====================
 
-Copyright (c) 2024 Kenneth McDonald
+Copyright (c) 2024 Kenneth McDonald\
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
