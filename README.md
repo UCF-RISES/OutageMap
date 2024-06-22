@@ -1,4 +1,4 @@
-# OutageMap
+\# OutageMap
 OutageMap is an open-source software that can be used to generate weather related outage data for a given power distribution network. The framework uses a set of fragility curves to describe the extent of weather impacts on physical features, which can be applied in a straightforward way to real-world networks and extreme weather conditions once data of the actual physical networks and their past impact outcomes becomes available
 
 ## Installing OutageMap
@@ -10,11 +10,11 @@ Open the Anaconda Prompt and navigate to `OutageMap/Conda Environment Setup` whe
 ``` shell
 	conda env create -f environment.yml
 ```
-This creates the Python environment named `OutageMap1`, with all the packages needed to run the software.
+This creates the Python environment named `OutageMap`, with all the packages needed to run the software.
 
  To activate the environment, run:
 ``` shell
-	conda activate OutageMap1
+	conda activate OutageMap
 ```
 ## Running the Example
 
@@ -41,7 +41,7 @@ To redownload them, you can use the following:
     aws s3 cp s3://oedi-data-lake/SMART-DS/v1.0/2018/SFO/P3R/profiles/ ./profiles --recursive --no-sign-request
     ```
 
-    Once the data has completed downloading, you may close the command prompt. If you do not have OpenDSS you may download it from https://sourceforge.net/projects/electricdss/. It may be needed to use the Python package `opendssdirect`.
+    Once the data has completed downloading, you may close the command prompt.
 
 4. Navigate to  `OutageMap/P3R/DSS/P3R/scenarios/base_timeseries/opendss/p3rhs0_1247/p3rhs0_1247--p3rdt1052` and you should now see the files
     -   Buscoords.dss   
@@ -100,7 +100,7 @@ To generate the outage data, run `OutageMap/main.py`. Upon successful execution,
 The MIT License (MIT)
 =====================
 
-Copyright (c) 2015
+Copyright (c) 2024 Kenneth McDonald
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
