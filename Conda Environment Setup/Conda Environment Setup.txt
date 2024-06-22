@@ -10,4 +10,4 @@ This should create the Python environment, with all the packages needed to run t
 
 3. To activate the environment, run:
 
-	conda activate OutageMap1
+	conda activate OutageMap
