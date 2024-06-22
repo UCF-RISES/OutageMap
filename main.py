@@ -47,8 +47,8 @@ stdWI = {
 forecastedRange = {}
 
 # Load node and edge data from CSV files
-nodes = pd.read_csv(f"./{network}/nodeList3.csv")
-edges = pd.read_csv(f"./{network}/edgeList3.csv")
+nodes = pd.read_csv(f"./{network}/nodeList.csv")
+edges = pd.read_csv(f"./{network}/edgeList.csv")
 
 forecastedFactors = [["length", edges], ["vegetation edges", edges], ["elevation nodes", nodes], ["vegetation", nodes]]
 
