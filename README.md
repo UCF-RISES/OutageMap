@@ -14,13 +14,13 @@ If you do not have an existing Anaconda installation, go to https://www.anaconda
 
 In the windows search bar, type and select Anaconda Prompt. Open the prompt and navigate to `OutageMap/Conda Environment Setup` using `cd` commands. This is where the enviroment `.yml` file is currently stored. Once in the directory run the following command:
 ``` shell
-	conda env create -f environment.yml
+conda env create -f environment.yml
 ```
 This creates the Python environment named `OutageMap`, with all the packages needed to run the software.
 
  To activate the environment, run:
 ``` shell
-	conda activate OutageMap
+conda activate OutageMap
 ```
 
 Move back to the main directory `OutageMap` using 
