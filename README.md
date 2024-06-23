@@ -8,6 +8,8 @@ Kenneth McDonald, Colin Le, and Zhihua Qu. "Open-Source Modeling of Extreme Weat
 ## Installing OutageMap
 OutageMap was designed using Python 3.11.9 and Anaconda. 
 
+First, clone or download the repository.
+
 If you do not have an existing Anaconda installation, go to https://www.anaconda.com/products/individual, click on skip registration, and then click the green download button.
 
 Open the Anaconda Prompt and navigate to `OutageMap/Conda Environment Setup` where the enviroment `.yml` file is currently stored and run the following command:
