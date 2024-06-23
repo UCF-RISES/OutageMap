@@ -22,6 +22,11 @@ This creates the Python environment named `OutageMap`, with all the packages nee
 ``` shell
 	conda activate OutageMap
 ```
+
+Move back to the main directory `OutageMap` using 
+```shell
+cd ..
+```
 ## Running the Example
 
 ### Collecting the Network Data
@@ -61,10 +66,13 @@ To redownload them, you can use the following:
 
     For the final step, we now want to copy these files, along with the folder labeled `OutageMap/P3R/DSS/P3R/profiles` to `OutageMap/P3R/DSS/profiles`. Then folder `OutageMap/P3R/DSS/P3R` can be removed. 
 
-5. Open `OutageMap/P3R/DSS/Loadshapes.dss`, press `Ctrl+F` and replace every occurence of `../../../../../profiles` to `profiles`.
+5. Open `OutageMap/P3R/DSS/Loadshapes.dss` in Notepad, press `Ctrl+F` and replace every occurence of `../../../../../profiles` to `profiles`.
 
 ### Extracting Data from OpenDSS files
-To extract the data from the OpenDSS circuit into Python, run `OutageMap/importData.py`
+To extract the data from the OpenDSS circuit into Python, run `OutageMap/importData.py` by calling the command 
+```shell
+python run importData.py
+```
 
 ![Alt text](imgs/importedPlot.png?raw=true "Title")
 
