@@ -73,7 +73,7 @@ To extract the data from the OpenDSS circuit into Python, run `OutageMap/importD
 ```shell
 python importData.py
 ```
-
+Upon successful execution, you should obtain the graph of the network below
 ![Alt text](imgs/importedPlot.png?raw=true "Title")
 
 ### Collection of Extreme Weather Events
