@@ -2,6 +2,7 @@
 OutageMap is an open-source software that can be used to generate weather related outage data for a given power distribution network. The framework uses a set of fragility curves to describe the extent of weather impacts on physical features, which can be applied in a straightforward way to real-world networks and extreme weather conditions once data of the actual physical networks and their past impact outcomes becomes available
 
 This is the code repository for the following paper. To use this repo, please cite:
+
 Kenneth McDonald, Colin Le, and Zhihua Qu. "Open-Source Modeling of Extreme Weather Impact on Distribution Networks." Accepted to Open Source Modeling and Simulation of Energy Systems (OSMSES), 2024.
 
 ## Installing OutageMap
