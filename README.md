@@ -97,6 +97,8 @@ python main.py
 Upon successful execution, you should obtain the outage map below
 ![Alt text](imgs/scenario1_outageMapNew.png?raw=true "Title")
 
+## Other Information
+
 ### Extreme Weather Events from NOAA
 The collection of extreme weather events starts on NOAA’s Storm Event Database. As stated in the paper, the chosen event for this tutorial is a “bomb cyclone” event that occurred on March 21st, 2023 in the Greater San Francisco Area. 
 
@@ -122,7 +124,7 @@ Next, we open the downloaded CSV to modify the contents through the following:
 
 3. Once these changes have been made, the file can be saved in the OutageMap directory and closed.
 
-The MIT License (MIT)
+## License (MIT License)
 =====================
 
 Copyright (c) 2024 Kenneth McDonald
