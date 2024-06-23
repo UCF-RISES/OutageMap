@@ -12,7 +12,7 @@ First, clone or download the repository.
 
 If you do not have an existing Anaconda installation, go to https://www.anaconda.com/products/individual, click on skip registration, and then click the green download button.
 
-Open the Anaconda Prompt and navigate to `OutageMap/Conda Environment Setup` where the enviroment `.yml` file is currently stored and run the following command:
+In the windows search bar, type and select Anaconda Prompt. Open the prompt and navigate to `OutageMap/Conda Environment Setup` using `cd` commands. This is where the enviroment `.yml` file is currently stored. Once in the directory run the following command:
 ``` shell
 	conda env create -f environment.yml
 ```
