@@ -71,12 +71,33 @@ To redownload them, you can use the following:
 ### Extracting Data from OpenDSS files
 To extract the data from the OpenDSS circuit into Python, run `OutageMap/importData.py` by calling the command 
 ```shell
-python run importData.py
+python importData.py
 ```
 
 ![Alt text](imgs/importedPlot.png?raw=true "Title")
 
 ### Collection of Extreme Weather Events
+To import the weather event from the CSV into Python, run `OutageMap/getWeather.py` by calling the command:
+```shell
+python getWeather.py
+```
+The steps to obtained the weather event CSV are detailed in `Extreme Weather Events from NOAA`.
+
+### Conversion of Weather Features to Weather Impact Score
+To scale the data and convert to a weather impact score, run `OutageMap/findWeatherImpact.py` by calling the command: 
+```shell
+python findWeatherImpact.py
+```
+
+### Generating the Outage Data
+To generate the outage data, run `OutageMap/main.py` by calling the command:
+```shell
+python main.py
+```
+Upon successful execution, you should obtain the outage map below
+![Alt text](imgs/scenario1_outageMapNew.png?raw=true "Title")
+
+### Extreme Weather Events from NOAA
 The collection of extreme weather events starts on NOAA’s Storm Event Database. As stated in the paper, the chosen event for this tutorial is a “bomb cyclone” event that occurred on March 21st, 2023 in the Greater San Francisco Area. 
 
 We start by heading to the site at https://www.ncdc.noaa.gov/stormevents/. 
@@ -100,16 +121,6 @@ Next, we open the downloaded CSV to modify the contents through the following:
 2. The next step is to convert the time zone from PST to UTC since NLDAS2 requires UTC time. To do so, we change the start time to `1900`, the end date to be `3/22/2023` and the end time to be `0500`. 
 
 3. Once these changes have been made, the file can be saved in the OutageMap directory and closed.
-
-To import the weather event from the CSV into Python, run `OutageMap/getWeather.py`
-
-### Conversion of Weather Features to Weather Impact Score
-To scale the data and convert to a weather impact score, run `OutageMap/findWeatherImpact.py`. 
-
-### Generating the Outage Data
-To generate the outage data, run `OutageMap/main.py`. Upon successful execution, you should obtain the outage map below
-
-![Alt text](imgs/scenario1_outageMapNew.png?raw=true "Title")
 
 The MIT License (MIT)
 =====================
