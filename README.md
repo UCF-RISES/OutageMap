@@ -125,7 +125,6 @@ Next, we open the downloaded CSV to modify the contents through the following:
 3. Once these changes have been made, the file can be saved in the OutageMap directory and closed.
 
 ## License (MIT License)
-=====================
 
 Copyright (c) 2024 Kenneth McDonald
 
